@@ -7,17 +7,354 @@
 <meta name="description" content="Da esploratore ad orchestratore. Documento il mio percorso con Claude Code e AI tools, errori inclusi." />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Sora:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js" defer></script>
 </head>
 <body>
-<div id="root"></div>
 
-<script src="https://unpkg.com/react@18.3.1/umd/react.development.js" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.development.js" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
-<script src="https://unpkg.com/@babel/standalone@7.29.0/babel.min.js" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-<script type="text/babel" src="tweaks-panel.jsx"></script>
-<script type="text/babel" src="app.jsx"></script>
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.8">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-blob ambient-blob-c"></div>
+  <div class="ambient-grid"></div>
+  <div class="ambient-grain"></div>
+</div>
+
+<!-- Welcome popup -->
+<div class="welcome-gate" id="welcomeGate" style="display:none">
+  <div class="welcome-inner" id="welcomeInner">
+    <div class="welcome-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </div>
+    <h2 class="welcome-ask">Aspetta, prima dimmi come ti chiami!</h2>
+    <p class="welcome-hint">Ti prometto che non lo dimentico.</p>
+    <form class="welcome-form" id="welcomeForm">
+      <input class="welcome-input" id="welcomeInput" type="text" placeholder="Il tuo nome" maxlength="40" autocomplete="off" />
+      <button class="welcome-btn" type="submit">Entra</button>
+    </form>
+    <button class="welcome-skip" id="welcomeSkip" type="button">salta</button>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav class="nav" id="mainNav">
+  <a class="nav-logo" href="#top">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="nav-link" href="#guide">Guide</a>
+    <a class="nav-link" href="#kit">Starter Kit</a>
+    <a class="nav-cta" href="https://www.linkedin.com/in/angelo-belforti-6a31891a8/" target="_blank" rel="noreferrer noopener">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.66H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.56V9h3.56v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.72V1.72C24 .77 23.2 0 22.22 0z"/></svg>
+      <span>LinkedIn</span>
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="hero" id="top">
+  <p class="hero-personal" id="heroPersonal" style="display:none"></p>
+  <div class="hero-eyebrow">
+    <span class="pulse-dot"></span>
+    <span>Work in public · Documentando in tempo reale</span>
+  </div>
+  <h1 class="hero-title">
+    Da <span class="word-strike">esploratore</span><br>
+    ad <span class="word-accent">orchestratore</span>.
+  </h1>
+  <p class="hero-sub">
+    Sono Angelo. Non scrivo codice, ma costruisco con Claude Code e una manciata di tool AI.
+    Qui condivido il percorso. Esperimenti, processi, e gli errori che mi hanno insegnato di più.
+  </p>
+  <div class="hero-ctas">
+    <a class="btn btn-primary" href="#guide">
+      <span>Esplora le guide</span>
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+    </a>
+    <a class="btn btn-ghost" href="#kit">
+      <span>Scarica lo Starter Kit</span>
+    </a>
+  </div>
+  <div class="hero-meta">
+    <div class="hero-meta-item">
+      <span class="hero-meta-num">3</span>
+      <span class="hero-meta-label">guide pubblicate</span>
+    </div>
+    <span class="hero-meta-sep"></span>
+    <div class="hero-meta-item">
+      <span class="hero-meta-num">0</span>
+      <span class="hero-meta-label">righe di codice scritte a mano</span>
+    </div>
+  </div>
+</header>
+
+<!-- Guide section -->
+<section class="section" id="guide">
+  <div class="section-head">
+    <div class="section-eyebrow">// guide</div>
+    <h2 class="section-title">Il percorso, una guida alla volta.</h2>
+    <p class="section-sub">Niente corso, niente formula. Solo quello che ho fatto la settimana scorsa, raccontato bene.</p>
+  </div>
+  <div class="guide-grid">
+
+    <a class="guide-card" href="guida-sicurezza.html" style="text-decoration:none;color:inherit" style="--i:0">
+      <div class="guide-visual swatch-green" aria-hidden="true">
+        <div class="guide-visual-grid"></div>
+        <div class="guide-visual-orb"></div>
+        <div class="guide-visual-tag"><span class="guide-visual-dot"></span><span>Sicurezza</span></div>
+        <div class="guide-visual-num">01</div>
+      </div>
+      <div class="guide-body">
+        <h3 class="guide-title">Come mettere le guardie al terminale e perche farlo subito</h3>
+        <p class="guide-desc">Claude puo eseguire comandi reali sul tuo computer. Prima che succeda qualcosa di brutto: due script PowerShell che bloccano reset --hard, push force e accesso ai file .env. Su Windows il sandbox non esiste ancora — gli hook sono la prima linea di difesa.</p>
+        <div class="guide-chips">
+          <span class="chip">Hook PowerShell</span>
+          <span class="chip">settings.json</span>
+          <span class="chip">Windows</span>
+        </div>
+        <div class="guide-foot">
+          <span class="guide-read">Leggi la guida</span>
+          <span class="guide-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </a>
+
+    <a class="guide-card" href="guida-manifest.html" style="text-decoration:none;color:inherit" style="--i:1">
+      <div class="guide-visual swatch-violet" aria-hidden="true">
+        <div class="guide-visual-grid"></div>
+        <div class="guide-visual-orb"></div>
+        <div class="guide-visual-tag"><span class="guide-visual-dot"></span><span>Setup</span></div>
+        <div class="guide-visual-num">02</div>
+      </div>
+      <div class="guide-body">
+        <h3 class="guide-title">2 ore per trovare un file JSON in una cartella senza nome</h3>
+        <p class="guide-desc">Stavo cercando di aggiungere comandi personalizzati a Claude. La documentazione diceva una cosa, la realta un'altra. I comandi non apparivano. Ho riletto tutto, provato tre formati diversi. Poi ho aperto AppData a mano e ho trovato un manifest.json in una cartella con un UUID a caso. Quello e il posto reale.</p>
+        <div class="guide-chips">
+          <span class="chip">AppData</span>
+          <span class="chip">manifest.json</span>
+          <span class="chip">Claude Desktop</span>
+        </div>
+        <div class="guide-foot">
+          <span class="guide-read">Leggi la guida</span>
+          <span class="guide-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </a>
+
+    <a class="guide-card" href="guida-mcp-vs-cli.html" style="text-decoration:none;color:inherit" style="--i:2">
+      <div class="guide-visual swatch-blue" aria-hidden="true">
+        <div class="guide-visual-grid"></div>
+        <div class="guide-visual-orb"></div>
+        <div class="guide-visual-tag"><span class="guide-visual-dot"></span><span>Tool</span></div>
+        <div class="guide-visual-num">03</div>
+      </div>
+      <div class="guide-body">
+        <h3 class="guide-title">55.000 parole prima di iniziare a lavorare</h3>
+        <p class="guide-desc">Ho collegato Claude a GitHub in 15 minuti. Nel pomeriggio ho scoperto che ogni sessione parte con 55.000 parole di manuale in memoria, prima ancora di fare qualcosa. Cosa significa MCP, quando non vale il costo, e quando usare la CLI invece. Spiegato da chi non viene dal codice.</p>
+        <div class="guide-chips">
+          <span class="chip">GitHub MCP</span>
+          <span class="chip">CLI</span>
+          <span class="chip">Token</span>
+        </div>
+        <div class="guide-foot">
+          <span class="guide-read">Leggi la guida</span>
+          <span class="guide-arrow" aria-hidden="true"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+        </div>
+      </div>
+    </a>
+
+    <article class="guide-card guide-card-muted" style="--i:3">
+      <div class="guide-visual swatch-pink" aria-hidden="true">
+        <div class="guide-visual-grid"></div>
+        <div class="guide-visual-orb"></div>
+        <div class="guide-visual-tag"><span class="guide-visual-dot"></span><span>Prossimamente</span></div>
+        <div class="guide-visual-num">04</div>
+      </div>
+      <div class="guide-body">
+        <h3 class="guide-title">Partire caldo ogni mattina senza rispiegare nulla</h3>
+        <p class="guide-desc">Ogni sessione ricominciava da zero. 10 minuti di setup al giorno, ogni giorno. Ho risolto con 48 righe in un file di testo che Claude legge all'avvio. Zero rispiegazioni, zero contesto perso.</p>
+        <div class="guide-chips"><span class="chip">CLAUDE.md</span><span class="chip">Memoria</span><span class="chip">Template</span></div>
+        <div class="guide-foot"><span class="guide-read" style="opacity:0.4">In arrivo</span></div>
+      </div>
+    </article>
+
+    <article class="guide-card guide-card-muted" style="--i:4">
+      <div class="guide-visual swatch-green" aria-hidden="true">
+        <div class="guide-visual-grid"></div>
+        <div class="guide-visual-orb"></div>
+        <div class="guide-visual-tag"><span class="guide-visual-dot"></span><span>Prossimamente</span></div>
+        <div class="guide-visual-num">05</div>
+      </div>
+      <div class="guide-body">
+        <h3 class="guide-title">Strutturare i progetti con il metodo PARA</h3>
+        <p class="guide-desc">Cartelle sparse, file senza nome, stati persi tra una sessione e l'altra. Come ho organizzato tutto in 4 categorie e perche adesso Claude sa sempre dove siamo.</p>
+        <div class="guide-chips"><span class="chip">PARA</span><span class="chip">STATUS.md</span><span class="chip">Workflow</span></div>
+        <div class="guide-foot"><span class="guide-read" style="opacity:0.4">In arrivo</span></div>
+      </div>
+    </article>
+
+    <article class="guide-card guide-card-muted" style="--i:5">
+      <div class="guide-visual swatch-violet" aria-hidden="true">
+        <div class="guide-visual-grid"></div>
+        <div class="guide-visual-orb"></div>
+        <div class="guide-visual-tag"><span class="guide-visual-dot"></span><span>Prossimamente</span></div>
+        <div class="guide-visual-num">06</div>
+      </div>
+      <div class="guide-body">
+        <h3 class="guide-title">Lo stack che uso davvero. Senza classifiche.</h3>
+        <p class="guide-desc">Niente affiliate, niente sponsorship. Claude Code, qualche MCP, un file di testo. Lo stack reale di chi orchestra senza scrivere una riga di codice. Aggiornato ogni mese.</p>
+        <div class="guide-chips"><span class="chip">Claude Code</span><span class="chip">MCP</span><span class="chip">Stack</span></div>
+        <div class="guide-foot"><span class="guide-read" style="opacity:0.4">In arrivo</span></div>
+      </div>
+    </article>
+
+  </div>
+</section>
+
+<!-- Starter Kit -->
+<section class="section section-kit" id="kit">
+  <div class="kit-card">
+    <div class="kit-glow" aria-hidden="true"></div>
+    <div class="kit-left">
+      <div class="section-eyebrow">// starter kit</div>
+      <h2 class="kit-title">Il kit di partenza che avrei voluto al giorno uno.</h2>
+      <p class="kit-sub">Quello che ho costruito nelle prime settimane, pulito e pronto da usare. Non un corso, non un PDF pieno di teoria. Tre file concreti e una struttura che funziona.</p>
+      <ul class="kit-list">
+        <li><span class="kit-check" aria-hidden="true">✓</span> Template CLAUDE.md — chi sei, i tuoi progetti, le regole operative</li>
+        <li><span class="kit-check" aria-hidden="true">✓</span> Struttura PARA per organizzare i progetti con Claude</li>
+        <li><span class="kit-check" aria-hidden="true">✓</span> 3 skill base: apri sessione, chiudi sessione, bozza LinkedIn</li>
+        <li><span class="kit-check" aria-hidden="true">✓</span> Aggiornamenti via email, non piu di uno al mese</li>
+      </ul>
+    </div>
+    <div class="kit-right">
+      <form class="kit-form" id="kitForm" novalidate>
+        <label class="kit-label" for="kitEmail">La tua email</label>
+        <div class="kit-input-wrap" id="kitInputWrap">
+          <input id="kitEmail" class="kit-input" type="email" placeholder="nome@tuodominio.com" autocomplete="email" />
+          <button class="kit-submit" type="submit" id="kitSubmit">Avvisami quando esce</button>
+        </div>
+        <div class="kit-foot">
+          <span class="kit-foot-muted" id="kitMsg">Niente spam. Cancellazione in un click.</span>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelo-belforti-6a31891a8/" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.</div>
+</footer>
+
+<script>
+// Nav scroll
+window.addEventListener('scroll', function() {
+  document.getElementById('mainNav').classList.toggle('nav-scrolled', window.scrollY > 8);
+}, { passive: true });
+
+// Welcome popup
+(function() {
+  var saved = localStorage.getItem('oai_visitor_name');
+  if (saved !== null) {
+    if (saved) showHeroName(saved);
+    return;
+  }
+  setTimeout(function() {
+    document.getElementById('welcomeGate').style.display = 'flex';
+    setTimeout(function() { document.getElementById('welcomeInput').focus(); }, 100);
+  }, 600);
+
+  function fireConfetti() {
+    if (!window.confetti) return;
+    confetti({ particleCount: 140, spread: 90, origin: { y: 0.55 }, colors: ['#facc15','#f97316','#4ade80','#f472b6','#a78bfa','#fff'] });
+    setTimeout(function() {
+      confetti({ particleCount: 60, angle: 60, spread: 60, origin: { x: 0, y: 0.6 }, colors: ['#facc15','#f97316','#4ade80'] });
+      confetti({ particleCount: 60, angle: 120, spread: 60, origin: { x: 1, y: 0.6 }, colors: ['#facc15','#f97316','#4ade80'] });
+    }, 180);
+  }
+
+  function enterSite(name) {
+    localStorage.setItem('oai_visitor_name', name || '');
+    if (name) showHeroName(name);
+    var gate = document.getElementById('welcomeGate');
+    gate.style.opacity = '0';
+    gate.style.transition = 'opacity 0.5s ease';
+    setTimeout(function() { gate.style.display = 'none'; }, 500);
+  }
+
+  function showCheer(name) {
+    var inner = document.getElementById('welcomeInner');
+    inner.innerHTML = '<div class="welcome-cheer"><div class="welcome-cheer-emoji">🎉</div><h2 class="welcome-cheer-title">' + (name ? 'Ciao ' + name + '!' : 'Benvenuto!') + '</h2><p class="welcome-cheer-sub">Siediti, ho tanto da raccontarti.</p></div>';
+  }
+
+  document.getElementById('welcomeForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var name = document.getElementById('welcomeInput').value.trim();
+    fireConfetti();
+    showCheer(name);
+    setTimeout(function() { enterSite(name); }, 2400);
+  });
+
+  document.getElementById('welcomeSkip').addEventListener('click', function() {
+    enterSite('');
+  });
+})();
+
+function showHeroName(name) {
+  var el = document.getElementById('heroPersonal');
+  el.textContent = 'Ciao ' + name + ',';
+  el.style.display = 'block';
+}
+
+// Kit form
+document.getElementById('kitForm').addEventListener('submit', function(e) {
+  e.preventDefault();
+  var email = document.getElementById('kitEmail').value;
+  var wrap = document.getElementById('kitInputWrap');
+  var msg = document.getElementById('kitMsg');
+  var btn = document.getElementById('kitSubmit');
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    wrap.classList.add('is-error');
+    msg.textContent = 'Email non valida. Riprova.';
+    msg.className = 'kit-foot-error';
+    return;
+  }
+  wrap.classList.remove('is-error');
+  btn.textContent = 'Invio...';
+  btn.disabled = true;
+  setTimeout(function() {
+    btn.textContent = 'Iscritto';
+    msg.textContent = 'Controlla la posta. Arriva entro un minuto.';
+    msg.className = 'kit-foot-ok';
+  }, 700);
+});
+</script>
+
 </body>
 </html>
