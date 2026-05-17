@@ -1,0 +1,312 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Come mettere le guardie al terminale · OrchestratoreAI</title>
+<meta name="description" content="Claude puo eseguire comandi reali sul tuo computer. Prima che succeda qualcosa di brutto: come installare gli hook di sicurezza su Windows." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.5">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-grid"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="guide-back-link" href="index.html#guide">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Tutte le guide
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="guide-hero">
+  <div class="guide-hero-meta">
+    <span class="guide-cat">Sicurezza</span>
+    <span class="guide-readtime">// 6 min lettura</span>
+  </div>
+  <h1 class="guide-hero-title">Come mettere le guardie al terminale e perche farlo subito.</h1>
+  <div class="guide-hero-chips">
+    <span class="chip">Hook PowerShell</span>
+    <span class="chip">settings.json</span>
+    <span class="chip">Windows</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="guide-main">
+
+  <!-- Prose -->
+  <article class="guide-prose">
+
+    <h2>Cosa puo fare Claude sul tuo computer</h2>
+    <p>
+      Quando usi Claude Code, non stai solo chattando. Claude ha accesso al terminale
+      del tuo computer e puo eseguire comandi reali: creare file, modificarli, cancellarli,
+      mandare codice su GitHub, installare software.
+    </p>
+    <p>
+      Nella maggior parte dei casi e esattamente quello che vuoi. Ma ci sono comandi
+      che non dovresti mai eseguire per sbaglio — e Claude, se non glielo impedisci,
+      potrebbe eseguirli senza cattive intenzioni ma con conseguenze difficili da invertire.
+    </p>
+
+    <div class="guide-callout callout-warning">
+      <div class="guide-callout-label">I comandi piu pericolosi</div>
+      <p>
+        <strong>git reset --hard</strong> — cancella tutte le modifiche non salvate, senza possibilita di recupero.<br>
+        <strong>git push --force</strong> — sovrascrive la storia su GitHub, puo cancellare il lavoro dei tuoi collaboratori.<br>
+        <strong>rm -rf</strong> — elimina cartelle intere in modo permanente.<br>
+        <strong>Accesso a file .env</strong> — questi file contengono password e chiavi API. Non devono mai finire in un commit.
+      </p>
+    </div>
+
+    <h2>Hook vs Sandbox: due approcci diversi</h2>
+    <p>
+      Esistono due modi per proteggere il terminale quando lavori con Claude Code:
+    </p>
+    <ul>
+      <li>
+        <strong>Gli hook</strong> sono come un semaforo: controllano ogni comando prima che venga
+        eseguito e lo bloccano se corrisponde a una lista nera. Facili da installare,
+        funzionano su Windows.
+      </li>
+      <li>
+        <strong>Il sandbox</strong> e come un muro fisico: crea un recinto a livello di sistema
+        operativo dove Claude non puo uscire dalla cartella di lavoro ne fare richieste
+        di rete non autorizzate. Molto piu robusto degli hook, ma al momento
+        <strong>non supportato su Windows nativo</strong> (solo macOS e Linux).
+      </li>
+    </ul>
+    <p>
+      Su Windows, gli hook sono la soluzione migliore disponibile adesso.
+      Quando arrivera il supporto sandbox per Windows, sara il primo upgrade da fare.
+    </p>
+
+    <h2>Come installare gli hook su Windows</h2>
+    <p>
+      Servono due file PowerShell e una modifica al settings.json di Claude Code.
+      Niente da installare, niente da scaricare — solo file di testo.
+    </p>
+
+    <p><strong>Passo 1 — Crea la cartella hooks</strong></p>
+    <div class="guide-code">
+      <pre><span class="code-path">C:\Users\[tuonome]\.claude\hooks\</span></pre>
+    </div>
+    <p>Se la cartella <code>.claude</code> non esiste, creala. Dentro, crea la sottocartella <code>hooks</code>.</p>
+
+    <p><strong>Passo 2 — Crea il file check-bash.ps1</strong></p>
+    <p>Questo script blocca i comandi bash pericolosi:</p>
+    <div class="guide-code">
+<pre><span class="code-comment"># check-bash.ps1 — blocca comandi pericolosi</span>
+<span class="code-key">$input_json</span> = $input | ConvertFrom-Json
+<span class="code-key">$command</span> = $input_json.tool_input.command
+
+<span class="code-key">$blocked</span> = @(
+  <span class="code-val">"push --force"</span>,
+  <span class="code-val">"push -f"</span>,
+  <span class="code-val">"reset --hard"</span>,
+  <span class="code-val">"rm -rf"</span>
+)
+
+foreach ($pattern in $blocked) {
+  if ($command -match [regex]::Escape($pattern)) {
+    @{ decision = <span class="code-val">"block"</span>; reason = <span class="code-val">"Comando bloccato dall hook di sicurezza: $pattern"</span> } | ConvertTo-Json
+    exit 0
+  }
+}
+
+@{ decision = <span class="code-val">"approve"</span> } | ConvertTo-Json</pre>
+    </div>
+
+    <p><strong>Passo 3 — Crea il file check-files.ps1</strong></p>
+    <p>Questo script protegge i file .env:</p>
+    <div class="guide-code">
+<pre><span class="code-comment"># check-files.ps1 — protegge file sensibili</span>
+<span class="code-key">$input_json</span> = $input | ConvertFrom-Json
+<span class="code-key">$path</span> = $input_json.tool_input.path
+
+if ($path -match <span class="code-val">"\\.env"</span>) {
+  @{ decision = <span class="code-val">"block"</span>; reason = <span class="code-val">"Accesso a file .env bloccato"</span> } | ConvertTo-Json
+  exit 0
+}
+
+@{ decision = <span class="code-val">"approve"</span> } | ConvertTo-Json</pre>
+    </div>
+
+    <p><strong>Passo 4 — Registra gli hook nel settings.json</strong></p>
+    <p>Apri (o crea) il file <code>~/.claude/settings.json</code> e aggiungi questa sezione:</p>
+    <div class="guide-code">
+<pre>{
+  <span class="code-key">"hooks"</span>: {
+    <span class="code-key">"PreToolUse"</span>: [
+      {
+        <span class="code-key">"matcher"</span>: <span class="code-val">"Bash"</span>,
+        <span class="code-key">"hooks"</span>: [
+          {
+            <span class="code-key">"type"</span>: <span class="code-val">"command"</span>,
+            <span class="code-key">"command"</span>: <span class="code-val">"powershell -File ~/.claude/hooks/check-bash.ps1"</span>
+          }
+        ]
+      },
+      {
+        <span class="code-key">"matcher"</span>: <span class="code-val">"Write"</span>,
+        <span class="code-key">"hooks"</span>: [
+          {
+            <span class="code-key">"type"</span>: <span class="code-val">"command"</span>,
+            <span class="code-key">"command"</span>: <span class="code-val">"powershell -File ~/.claude/hooks/check-files.ps1"</span>
+          }
+        ]
+      }
+    ]
+  }
+}</pre>
+    </div>
+
+    <p>Riavvia Claude Code. Da questo momento, ogni volta che Claude prova a eseguire
+    uno dei comandi bloccati, lo script interviene prima che venga eseguito.</p>
+
+    <h2>I 4 layer di sicurezza</h2>
+    <p>
+      Gli hook sono solo il secondo layer. Ecco come si struttura la sicurezza completa,
+      dal piu semplice al piu robusto:
+    </p>
+    <ul>
+      <li>
+        <strong>Layer 1 — CLAUDE.md</strong>: scrivi esplicitamente cosa Claude non deve fare.
+        Il modello puo dimenticare, ma e un punto di partenza.
+        <em>Stato: da aggiungere ai progetti critici.</em>
+      </li>
+      <li>
+        <strong>Layer 2 — Hook di sicurezza</strong>: blocca comandi specifici a livello di esecuzione.
+        <em>Stato: installati.</em>
+      </li>
+      <li>
+        <strong>Layer 3 — Branch workflow</strong>: Claude lavora sempre su un branch separato,
+        mai direttamente su main. Sblocca con GitHub MCP.
+        <em>Stato: da configurare.</em>
+      </li>
+      <li>
+        <strong>Layer 4 — Sandbox OS-level</strong>: recinto filesystem a livello di sistema operativo.
+        <em>Stato: in attesa di supporto Windows nativo.</em>
+      </li>
+    </ul>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">La lezione</div>
+      <p>Non aspettare di capire tutto prima di mettere le protezioni. Gli hook si installano
+      in 15 minuti e proteggono dai danni piu comuni. Fallo prima di dare a Claude
+      l'accesso a qualsiasi progetto che ti importa.</p>
+    </div>
+
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="guide-sidebar">
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Cosa ho usato</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <span class="tool-name">Claude Code</span>
+          CLI di Anthropic — quello che esegue i comandi
+        </li>
+        <li>
+          <span class="tool-name">PowerShell</span>
+          Per scrivere gli script hook su Windows
+        </li>
+        <li>
+          <span class="tool-name">settings.json</span>
+          File di configurazione di Claude Code
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Link utili</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <a href="https://docs.anthropic.com/en/docs/claude-code/hooks" target="_blank" rel="noreferrer">
+            Documentazione hook Claude Code
+          </a>
+        </li>
+        <li>
+          <a href="https://docs.anthropic.com/en/docs/claude-code/sandboxing" target="_blank" rel="noreferrer">
+            Documentazione sandbox (macOS/Linux)
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Compatibilita sandbox</div>
+      <ul class="guide-sidebar-list">
+        <li>macOS — supportato</li>
+        <li>Linux — supportato</li>
+        <li>WSL2 — supportato</li>
+        <li>Windows nativo — non ancora</li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Next guide -->
+  <div class="guide-next-wrap">
+    <a class="guide-next" href="guida-manifest.html">
+      <div>
+        <div class="guide-next-label">Prossima guida</div>
+        <div class="guide-next-title">2 ore per trovare un file JSON in una cartella senza nome</div>
+      </div>
+      <span class="guide-next-arrow" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelobelforti" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">
+    Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.
+  </div>
+</footer>
+
+</body>
+</html>

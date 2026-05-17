@@ -1,0 +1,265 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>2 ore per trovare un file JSON in una cartella senza nome · OrchestratoreAI</title>
+<meta name="description" content="Dove Claude Desktop legge davvero i comandi personalizzati. La documentazione non lo dice. Lo trovi solo quando qualcosa si rompe." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.5">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-grid"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="guide-back-link" href="index.html#guide">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Tutte le guide
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="guide-hero">
+  <div class="guide-hero-meta">
+    <span class="guide-cat">Setup</span>
+    <span class="guide-readtime">// 5 min lettura</span>
+  </div>
+  <h1 class="guide-hero-title">2 ore per trovare un file JSON in una cartella senza nome.</h1>
+  <div class="guide-hero-chips">
+    <span class="chip">AppData</span>
+    <span class="chip">manifest.json</span>
+    <span class="chip">Claude Desktop</span>
+    <span class="chip">Windows</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="guide-main">
+
+  <!-- Prose -->
+  <article class="guide-prose">
+
+    <h2>Il problema: comandi che non apparivano</h2>
+    <p>
+      Volevo aggiungere comandi personalizzati a Claude Desktop. Comandi slash — quelli che digiti
+      con <strong>/</strong> e che eseguono automaticamente un'istruzione predefinita.
+      Cose come <em>/brief</em> per avere un riepilogo della sessione, o <em>/chiudi-sessione</em>
+      per salvare tutto prima di uscire.
+    </p>
+    <p>
+      Ho letto la documentazione. Ho creato i file nel formato giusto. Ho messo tutto nella
+      cartella indicata. Ho riavviato Claude Desktop.
+    </p>
+    <p>
+      I comandi non apparivano.
+    </p>
+    <p>
+      Ho riletto la documentazione. Ho provato tre formati diversi per i file.
+      Ho cercato su forum e thread. Niente. Dopo un'ora ero convinto di aver sbagliato
+      qualcosa di fondamentale.
+    </p>
+
+    <div class="guide-callout callout-warning">
+      <div class="guide-callout-label">Attenzione</div>
+      <p>Claude Desktop e Claude Code CLI sono due ambienti separati con meccanismi completamente
+      diversi per leggere i comandi personalizzati. La documentazione non lo dice in modo chiaro.
+      Se stai seguendo un tutorial generico, probabilmente stai guardando nel posto sbagliato.</p>
+    </div>
+
+    <h2>Dove guarda davvero Claude Desktop</h2>
+    <p>
+      La svolta e arrivata aprendo manualmente la cartella <strong>AppData</strong> su Windows.
+      AppData e una cartella nascosta che Windows non mostra di default — devi attivarla
+      o digitare il percorso a mano nella barra degli indirizzi.
+    </p>
+    <p>
+      Il percorso che mi interessava era questo:
+    </p>
+    <div class="guide-code">
+      <pre><span class="code-path">C:\Users\[tuonome]\AppData\Roaming\Claude\</span></pre>
+    </div>
+    <p>
+      Dentro quella cartella ho trovato una sottocartella con un nome come questo:
+    </p>
+    <div class="guide-code">
+      <pre><span class="code-path">c3093273-bba4-4a32-9fb5-665e6e9e7609</span></pre>
+    </div>
+    <p>
+      Un UUID. Una stringa casuale generata automaticamente da Claude al momento
+      dell'installazione. Non e documentata. Non e menzionata in nessun tutorial.
+      La trovi solo se cerchi a mano.
+    </p>
+    <p>
+      Dentro quella cartella: un file chiamato <strong>manifest.json</strong>.
+      Quello e il posto dove Claude Desktop legge davvero i comandi personalizzati.
+    </p>
+
+    <h2>Come funziona il manifest.json</h2>
+    <p>
+      Il manifest.json e un file di configurazione in formato JSON che dice a Claude Desktop
+      quali comandi personalizzati caricare e dove trovarli.
+      La struttura base e questa:
+    </p>
+    <div class="guide-code">
+<pre>{
+  <span class="code-key">"mcpServers"</span>: {},
+  <span class="code-key">"customCommands"</span>: [
+    {
+      <span class="code-key">"name"</span>: <span class="code-val">"brief"</span>,
+      <span class="code-key">"description"</span>: <span class="code-val">"Riepilogo mattutino dei progetti attivi"</span>,
+      <span class="code-key">"prompt"</span>: <span class="code-val">"Leggi i file STATUS.md attivi e dammi un brief di 10 righe..."</span>
+    }
+  ]
+}</pre>
+    </div>
+    <p>
+      Ogni comando ha un nome (quello che digiti dopo il /), una descrizione che appare
+      nel menu, e il prompt che viene inviato automaticamente a Claude quando lo usi.
+    </p>
+
+    <h2>La soluzione in tre passi</h2>
+    <ul>
+      <li><strong>Apri AppData.</strong> Nella barra degli indirizzi di Windows Explorer digita
+      <code>%APPDATA%\Claude</code> e premi invio.</li>
+      <li><strong>Trova la cartella con l'UUID.</strong> Ci sara una sola cartella con quel formato
+      (lettere e numeri con i trattini). Aprila.</li>
+      <li><strong>Modifica il manifest.json.</strong> Aggiungi i tuoi comandi nella sezione
+      <code>customCommands</code>, salva, riavvia Claude Desktop. Appaiono.</li>
+    </ul>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">La lezione</div>
+      <p>Ogni strumento AI ha una logica interna che non trovi nella documentazione ufficiale.
+      La trovi solo quando qualcosa si rompe e sei costretto a guardare dentro.
+      Il debugging e sottovalutato come metodo di apprendimento — non come attivita piacevole,
+      ma come modo per capire davvero come funziona qualcosa.</p>
+    </div>
+
+    <h2>Cosa ho imparato oltre al file</h2>
+    <p>
+      Questa storia mi ha insegnato una cosa che vale per tutti gli strumenti AI che uso:
+      la documentazione ufficiale ti dice come funziona in teoria.
+      L'AppData ti dice come funziona davvero.
+    </p>
+    <p>
+      Non e un difetto degli strumenti. E la natura di qualsiasi software complesso:
+      c'e sempre un layer interno che non e pensato per essere esposto agli utenti normali.
+      Il problema e che chi costruisce senza essere sviluppatore — come me — si ferma
+      al layer visibile e pensa di aver sbagliato qualcosa.
+    </p>
+    <p>
+      Spesso non hai sbagliato niente. Stai solo guardando nel posto sbagliato.
+    </p>
+
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="guide-sidebar">
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Cosa ho usato</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <span class="tool-name">Claude Desktop</span>
+          Client desktop di Anthropic per usare Claude
+        </li>
+        <li>
+          <span class="tool-name">Windows Explorer</span>
+          Per navigare fino ad AppData
+        </li>
+        <li>
+          <span class="tool-name">VS Code / Notepad</span>
+          Per editare il manifest.json
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Link utili</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <a href="https://claude.ai/download" target="_blank" rel="noreferrer">
+            Scarica Claude Desktop
+          </a>
+        </li>
+        <li>
+          <a href="https://docs.anthropic.com/en/docs/claude-code/cli-usage" target="_blank" rel="noreferrer">
+            Documentazione comandi Claude Code
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Tempo reale</div>
+      <ul class="guide-sidebar-list">
+        <li>Lettura documentazione: ~1 ora</li>
+        <li>Ricerca su forum: ~30 min</li>
+        <li>Trovare AppData: ~15 min</li>
+        <li>Fix effettivo: ~5 min</li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Next guide -->
+  <div class="guide-next-wrap">
+    <a class="guide-next" href="guida-mcp-vs-cli.html">
+      <div>
+        <div class="guide-next-label">Prossima guida</div>
+        <div class="guide-next-title">55.000 parole prima di iniziare a lavorare</div>
+      </div>
+      <span class="guide-next-arrow" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelobelforti" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">
+    Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.
+  </div>
+</footer>
+
+</body>
+</html>

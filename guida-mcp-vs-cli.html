@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>55.000 parole prima di iniziare a lavorare · OrchestratoreAI</title>
+<meta name="description" content="Ho collegato Claude a GitHub in 15 minuti. Nel pomeriggio ho scoperto il costo nascosto. MCP vs CLI spiegato da chi non viene dal codice." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.5">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-grid"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="guide-back-link" href="index.html#guide">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Tutte le guide
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="guide-hero">
+  <div class="guide-hero-meta">
+    <span class="guide-cat">Tool</span>
+    <span class="guide-readtime">// 6 min lettura</span>
+  </div>
+  <h1 class="guide-hero-title">55.000 parole prima di iniziare a lavorare.</h1>
+  <div class="guide-hero-chips">
+    <span class="chip">GitHub MCP</span>
+    <span class="chip">CLI</span>
+    <span class="chip">Token</span>
+    <span class="chip">Context window</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="guide-main">
+
+  <!-- Prose -->
+  <article class="guide-prose">
+
+    <h2>15 minuti per collegare Claude a GitHub</h2>
+    <p>
+      Una mattina ho deciso di collegare Claude direttamente a GitHub.
+      L'obiettivo era semplice: fare in modo che Claude potesse leggere i miei repository,
+      creare branch, leggere file — senza che io dovessi copiare e incollare niente a mano.
+    </p>
+    <p>
+      Ho seguito le istruzioni, ho creato un token su GitHub, ho eseguito un comando nel terminale.
+      Quindici minuti, funzionava.
+    </p>
+    <p>
+      Nel pomeriggio ho letto un dibattito tra sviluppatori su quello che avevo appena fatto.
+      E ho capito una cosa che non sapevo quando l'ho configurato.
+    </p>
+
+    <h2>Cosa e MCP</h2>
+    <p>
+      MCP sta per <strong>Model Context Protocol</strong>. E un sistema che permette a Claude
+      di connettersi a strumenti esterni — GitHub, Notion, database, qualsiasi cosa
+      abbia un'integrazione disponibile.
+    </p>
+    <p>
+      Funziona cosi: quando connetti uno strumento via MCP, Claude riceve all'inizio
+      di ogni sessione un documento che descrive lo strumento in dettaglio. Ogni funzione
+      disponibile, ogni parametro, ogni risposta possibile.
+      E come se ogni mattina, prima di iniziare a lavorare, dovessi leggere il manuale
+      completo di ogni strumento che hai in mano.
+    </p>
+    <p>
+      Quel manuale occupa spazio nella memoria di lavoro di Claude.
+      La chiamano <strong>context window</strong>: e lo spazio mentale che Claude ha
+      disponibile per pensare in una sessione. Piu e occupato dal manuale,
+      meno e disponibile per il lavoro reale.
+    </p>
+
+    <div class="guide-callout callout-warning">
+      <div class="guide-callout-label">Il costo nascosto</div>
+      <p>Il manuale di GitHub MCP occupa circa <strong>55.000 token</strong> di context window.
+      Per capire la dimensione: e come se all'inizio di ogni sessione leggessi
+      un libro di 150 pagine prima di fare qualsiasi cosa.
+      Questo spazio non e piu disponibile per il tuo lavoro.</p>
+    </div>
+
+    <h2>Cosa e la CLI e perche e diversa</h2>
+    <p>
+      L'alternativa a MCP si chiama CLI — Command Line Interface, ovvero la riga di comando.
+      Non e un'integrazione: sono comandi che Claude conosce gia dall'addestramento,
+      come <code>git</code>, <code>gh</code>, <code>curl</code>.
+    </p>
+    <p>
+      Quando usi la CLI, non c'e nessun manuale da caricare. Claude sa gia come
+      funzionano questi comandi — li ha imparati durante il training su milioni di righe
+      di codice e documentazione. Occupano zero spazio aggiuntivo nella context window.
+    </p>
+    <p>
+      La differenza in pratica:
+    </p>
+    <ul>
+      <li>
+        <strong>Con MCP:</strong> Claude legge un manuale all'inizio di ogni sessione,
+        poi ha accesso a tutte le funzioni dello strumento in modo strutturato.
+        Ottimo per strumenti complessi con tante funzioni specifiche.
+      </li>
+      <li>
+        <strong>Con CLI:</strong> Claude usa comandi che gia conosce, zero overhead.
+        Ottimo per operazioni standard su strumenti diffusi come Git e GitHub.
+      </li>
+    </ul>
+
+    <h2>Quando usare cosa</h2>
+    <p>
+      Non c'e una risposta universale. Dipende da come lavori.
+    </p>
+    <p>
+      <strong>Usa MCP quando:</strong> lo strumento che vuoi integrare ha funzioni
+      specifiche che Claude non conosce dall'addestramento. Un CRM aziendale,
+      un database proprietario, uno strumento di nicchia.
+      In questi casi il manuale e necessario perche non c'e alternativa.
+    </p>
+    <p>
+      <strong>Usa CLI quando:</strong> stai lavorando con strumenti standard e diffusi
+      come Git, GitHub, curl, npm. Claude li conosce gia bene.
+      Il costo di MCP non vale il vantaggio.
+    </p>
+    <p>
+      Per GitHub nello specifico: se le operazioni che fai sono quelle standard
+      — push, pull, branch, commit — la CLI e quasi sempre la scelta giusta.
+      Se hai bisogno di funzioni avanzate come gestire Projects, automatizzare
+      Actions o lavorare con l'API in modo strutturato, MCP puo valere il costo.
+    </p>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">La lezione</div>
+      <p>Ogni integrazione ha un costo. Non e solo il tempo di configurazione:
+      e il costo continuo a ogni sessione. Prima di collegare uno strumento via MCP,
+      chiediti: Claude conosce gia questo strumento? Se si, la CLI probabilmente basta.
+      Se no, il manuale vale il costo.</p>
+    </div>
+
+    <h2>La mia situazione adesso</h2>
+    <p>
+      Ho ancora GitHub MCP installato. Per come lavoro io — sessioni brevi,
+      task concreti, non sono sviluppatore — il costo di 55.000 token e significativo.
+      Ma ho anche bisogno di alcune funzioni specifiche che la CLI non copre comodamente.
+    </p>
+    <p>
+      Non so ancora se e la scelta giusta. Lo sto scoprendo mentre costruisco.
+    </p>
+    <p>
+      E questo e esattamente il punto del build in public da non tecnico:
+      non aspetti di capire tutto prima di raccontarlo. Racconti anche le cose
+      che capisci solo a posteriori.
+    </p>
+
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="guide-sidebar">
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Cosa ho usato</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <span class="tool-name">GitHub MCP</span>
+          Integrazione ufficiale di GitHub per Claude
+        </li>
+        <li>
+          <span class="tool-name">Claude Code CLI</span>
+          Per i comandi git/gh nativi
+        </li>
+        <li>
+          <span class="tool-name">GitHub Token</span>
+          Personal Access Token per autenticazione
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Link utili</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <a href="https://github.com/modelcontextprotocol/servers" target="_blank" rel="noreferrer">
+            Lista server MCP disponibili
+          </a>
+        </li>
+        <li>
+          <a href="https://github.com/settings/tokens" target="_blank" rel="noreferrer">
+            Crea un GitHub Token
+          </a>
+        </li>
+        <li>
+          <a href="https://docs.anthropic.com/en/docs/claude-code/mcp" target="_blank" rel="noreferrer">
+            Documentazione MCP su Claude Code
+          </a>
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Il confronto rapido</div>
+      <ul class="guide-sidebar-list">
+        <li>MCP GitHub — ~55.000 token/sessione</li>
+        <li>CLI (git/gh) — 0 token aggiuntivi</li>
+        <li>MCP altri tool — dipende dallo schema</li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Next guide -->
+  <div class="guide-next-wrap">
+    <a class="guide-next" href="guida-sicurezza.html">
+      <div>
+        <div class="guide-next-label">Leggi anche</div>
+        <div class="guide-next-title">Come mettere le guardie al terminale e perche farlo subito</div>
+      </div>
+      <span class="guide-next-arrow" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelobelforti" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">
+    Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.
+  </div>
+</footer>
+
+</body>
+</html>

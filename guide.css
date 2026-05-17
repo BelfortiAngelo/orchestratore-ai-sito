@@ -1,0 +1,276 @@
+/* =============================================
+   Guide pages — OrchestratoreAI
+   Dipende da styles.css per le variabili CSS
+   ============================================= */
+
+/* ---------- Back nav ---------- */
+.guide-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--mono-font);
+  font-size: 12px;
+  color: var(--ink-muted);
+  text-decoration: none;
+  letter-spacing: 0.04em;
+  transition: color 0.2s;
+  margin-left: auto;
+}
+.guide-back-link:hover { color: var(--accent); }
+
+/* ---------- Guide Hero ---------- */
+.guide-hero {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 80px 32px 48px;
+}
+.guide-hero-meta {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 24px;
+}
+.guide-cat {
+  font-family: var(--mono-font);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent);
+  background: var(--accent-soft);
+  padding: 4px 10px;
+  border-radius: 20px;
+  border: 1px solid var(--accent-glow);
+}
+.guide-readtime {
+  font-family: var(--mono-font);
+  font-size: 11px;
+  color: var(--ink-dim);
+  letter-spacing: 0.04em;
+}
+.guide-hero-title {
+  font-family: var(--heading-font);
+  font-size: clamp(28px, 5vw, 48px);
+  font-weight: 600;
+  color: var(--ink);
+  line-height: 1.15;
+  margin: 0 0 24px;
+}
+.guide-hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- Guide layout ---------- */
+.guide-main {
+  position: relative;
+  z-index: 1;
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 0 32px 80px;
+  display: grid;
+  grid-template-columns: 1fr 260px;
+  grid-template-rows: auto auto;
+  gap: 0 48px;
+  align-items: start;
+}
+.guide-prose {
+  grid-column: 1;
+  grid-row: 1;
+  min-width: 0;
+}
+.guide-sidebar {
+  grid-column: 2;
+  grid-row: 1 / 3;
+  position: sticky;
+  top: 80px;
+}
+.guide-next-wrap {
+  grid-column: 1;
+  grid-row: 2;
+  margin-top: 64px;
+}
+
+@media (max-width: 700px) {
+  .guide-main {
+    grid-template-columns: 1fr;
+    padding: 0 20px 64px;
+  }
+  .guide-hero { padding: 64px 20px 32px; }
+  .guide-sidebar { grid-column: 1; grid-row: auto; position: static; margin-top: 48px; }
+  .guide-next-wrap { grid-column: 1; }
+}
+
+/* ---------- Prose typography ---------- */
+.guide-prose p {
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink-muted);
+  margin: 0 0 20px;
+}
+.guide-prose p strong { color: var(--ink); font-weight: 600; }
+.guide-prose h2 {
+  font-family: var(--heading-font);
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--ink);
+  margin: 48px 0 16px;
+  padding-top: 48px;
+  border-top: 1px solid var(--line);
+}
+.guide-prose h2:first-child { margin-top: 0; padding-top: 0; border-top: none; }
+.guide-prose ul {
+  margin: 0 0 20px;
+  padding-left: 20px;
+}
+.guide-prose ul li {
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--ink-muted);
+  margin-bottom: 8px;
+}
+.guide-prose ul li strong { color: var(--ink); }
+.guide-prose a {
+  color: var(--accent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.guide-prose a:hover { opacity: 0.8; }
+
+/* ---------- Callout boxes ---------- */
+.guide-callout {
+  background: var(--card-strong);
+  border: 1px solid var(--line-strong);
+  border-left: 3px solid var(--accent);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 32px 0;
+}
+.guide-callout-label {
+  font-family: var(--mono-font);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin-bottom: 8px;
+}
+.guide-callout p {
+  margin: 0;
+  font-size: 15px;
+  color: var(--ink);
+}
+.guide-callout.callout-warning {
+  border-left-color: #f97316;
+}
+.guide-callout.callout-warning .guide-callout-label { color: #f97316; }
+
+/* ---------- Code blocks ---------- */
+.guide-code {
+  background: rgba(0,0,0,0.4);
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin: 24px 0;
+  overflow-x: auto;
+}
+.guide-code pre {
+  margin: 0;
+  font-family: var(--mono-font);
+  font-size: 13px;
+  line-height: 1.65;
+  color: #c8d3f5;
+  white-space: pre;
+}
+.guide-code .code-comment { color: var(--ink-dim); }
+.guide-code .code-key { color: #86e1fc; }
+.guide-code .code-val { color: #c3e88d; }
+.guide-code .code-path { color: #ffc777; }
+
+/* ---------- Sidebar ---------- */
+.guide-sidebar-card {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 20px;
+}
+.guide-sidebar-title {
+  font-family: var(--mono-font);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin: 0 0 16px;
+}
+.guide-sidebar-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.guide-sidebar-list li {
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.4;
+}
+.guide-sidebar-list li a {
+  color: var(--accent);
+  text-decoration: none;
+}
+.guide-sidebar-list li a:hover { text-decoration: underline; }
+.guide-sidebar-list .tool-name {
+  display: block;
+  color: var(--ink);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+
+/* ---------- Next guide ---------- */
+.guide-next {
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px 32px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+  text-decoration: none;
+  transition: border-color 0.2s, background 0.2s, transform 0.15s;
+}
+.guide-next:hover {
+  border-color: var(--line-strong);
+  background: var(--card-strong);
+  transform: translateY(-2px);
+}
+.guide-next-label {
+  font-family: var(--mono-font);
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-dim);
+  margin-bottom: 6px;
+}
+.guide-next-title {
+  font-family: var(--heading-font);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--ink);
+}
+.guide-next-arrow {
+  color: var(--accent);
+  flex-shrink: 0;
+  transition: transform 0.2s;
+}
+.guide-next:hover .guide-next-arrow { transform: translateX(4px); }
+
+/* ---------- Separator ---------- */
+.guide-divider {
+  border: none;
+  border-top: 1px solid var(--line);
+  margin: 40px 0;
+}
