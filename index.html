@@ -348,11 +348,30 @@ document.getElementById('kitForm').addEventListener('submit', function(e) {
   wrap.classList.remove('is-error');
   btn.textContent = 'Invio...';
   btn.disabled = true;
-  setTimeout(function() {
-    btn.textContent = 'Iscritto';
-    msg.textContent = 'Controlla la posta. Arriva entro un minuto.';
-    msg.className = 'kit-foot-ok';
-  }, 700);
+  fetch('https://api.convertkit.com/v3/forms/9479435/subscribe', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ api_key: 'qb9mExskitB_SeyAx8ukcw', email: email })
+  })
+  .then(function(res) { return res.json(); })
+  .then(function(data) {
+    if (data.subscription) {
+      btn.textContent = 'Iscritto ✓';
+      msg.textContent = 'Controlla la posta. Ti arriva una mail di benvenuto.';
+      msg.className = 'kit-foot-ok';
+    } else {
+      btn.textContent = 'Riprova';
+      btn.disabled = false;
+      msg.textContent = 'Qualcosa è andato storto. Riprova.';
+      msg.className = 'kit-foot-error';
+    }
+  })
+  .catch(function() {
+    btn.textContent = 'Riprova';
+    btn.disabled = false;
+    msg.textContent = 'Errore di rete. Riprova tra un momento.';
+    msg.className = 'kit-foot-error';
+  });
 });
 </script>
 
