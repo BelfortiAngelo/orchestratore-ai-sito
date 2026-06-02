@@ -348,14 +348,16 @@ document.getElementById('kitForm').addEventListener('submit', function(e) {
   wrap.classList.remove('is-error');
   btn.textContent = 'Invio...';
   btn.disabled = true;
-  fetch('https://api.convertkit.com/v3/forms/9479435/subscribe', {
+  fetch('https://api.brevo.com/v3/contacts', {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ api_key: 'qb9mExskitB_SeyAx8ukcw', email: email })
+    headers: {
+      'Content-Type': 'application/json',
+      'api-key': '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'
+    },
+    body: JSON.stringify({ email: email, listIds: [5], updateEnabled: true })
   })
-  .then(function(res) { return res.json(); })
-  .then(function(data) {
-    if (data.subscription) {
+  .then(function(res) {
+    if (res.ok) {
       btn.textContent = 'Iscritto ✓';
       msg.textContent = 'Controlla la posta. Ti arriva una mail di benvenuto.';
       msg.className = 'kit-foot-ok';
