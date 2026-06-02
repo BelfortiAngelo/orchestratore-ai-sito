@@ -1,37 +1,28 @@
 # STATUS — OrchestratoreAI Sito
 
-**Ultimo aggiornamento:** 2026-05-17
-**Sessioni totali:** 2
+**Ultimo aggiornamento:** 2026-06-02
+**Sessioni totali:** 5
 
 ## Stato attuale
-Sito live su Vercel con homepage, popup benvenuto, 3 guide complete e 3 in arrivo.
+Sito live con 4 guide pubblicate. Form email funzionante con raccolta contatti su Brevo e mail di benvenuto automatica attiva.
 
-## Ultima sessione (2026-05-17)
+## Ultima sessione (2026-06-02)
 **Fatto:**
-- Creato app.jsx con dati reali (sostituiti tutti i dati falsi di Claude Design)
-- Aggiunto popup benvenuto con nome visitatore (localStorage, confetti, backdrop blur)
-- Riscritte tutte le descrizioni guide con contenuto reale dai post LinkedIn pubblicati
-- Aggiornato Starter Kit con contenuto reale (CLAUDE.md + PARA + 3 skill)
-- Bottone kit cambiato in "Avvisami quando esce" (onesto — kit non ancora pronto)
-- Creato guide.css per layout pagine guida
-- Create 3 pagine guida complete: guida-sicurezza.html, guida-manifest.html, guida-mcp-vs-cli.html
-- Guide card collegate alle pagine guida via href
-- Deploy su Vercel tramite GitHub (repo: BelfortiAngelo/orchestratore-ai-sito)
-- Corretto URL LinkedIn in tutti i file (era angelobelforti, è angelo-belforti-6a31891a8)
+- Collegato form email a Brevo (lista "Startr kit", ID 5) via funzione Vercel `/api/subscribe.js`
+- API key Brevo salvata come variabile d'ambiente su Vercel (sicura, non nel codice)
+- Automazione "Welcome message" attiva su Brevo → mail di benvenuto recapitata correttamente
+- Rimosso Kit.com (troppo complesso per il caso d'uso)
 
-**Scoperto:**
-- GitHub MCP funziona solo in Claude Code CLI, non nella chat principale
-- Il flusso git per aggiornare Vercel è: git add . → git commit -m "msg" → git push
-- Username GitHub: BelfortiAngelo
-- URL LinkedIn corretto: https://www.linkedin.com/in/angelo-belforti-6a31891a8/
+**Da sistemare (piccole cose):**
+- Rimuovere "Hey, benvenuta/o a bordo!" dall'email (testo default Brevo — Automations → Welcome message → editor email)
+- Completare link nel P.S. con URL intero: orchestratore-ai-sito.vercel.app
 
 **Bloccato su:**
-- Form email non collegato a Kit.com (bottone "Avvisami" non invia niente)
-- Starter Kit non ancora pacchettizzato (file esistono ma non sono pronti da distribuire)
-- Dominio personalizzato non ancora configurato
+- Analytics da abilitare su Vercel dashboard (vercel.com → progetto → Analytics → Enable)
+- Starter Kit non ancora impacchettato come file scaricabile
 
 ## Prossimo step
-Collegare il form email dello Starter Kit a Kit.com — crea account Kit.com, crea form, sostituisci il form finto con l'embed reale.
+Brevo → Automations → "Welcome message" → editor email → rimuovi "Hey, benvenuta/o a bordo!" e completa il link nel P.S.
 
 ## Comandi git (da usare ogni volta)
 ```
@@ -43,5 +34,7 @@ git push
 ## Storico sessioni
 | Data | Fatto | Prossimo step |
 |------|-------|---------------|
+| 2026-05-23 | Guida MCP live, post pubblicato, card immagine creata | Enable Analytics su Vercel |
+| 2026-05-19 | Analytics CDN, MCP card bloccata, badge "In uscita", push GitHub | Pubblica post annuncio + Enable Analytics |
 | 2026-05-17 | Sito completo + deploy Vercel + 3 guide pages | Collegare Kit.com al form email |
 | 2026-05-12 | Claude Design → file corretti, struttura sito, popup benvenuto | Fix app.jsx con dati reali |

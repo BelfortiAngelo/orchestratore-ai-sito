@@ -1,0 +1,289 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>La chat orchestratrice · OrchestratoreAI</title>
+<meta name="description" content="Avevo 4 chat Claude aperte e nessuna sapeva delle altre. Come ho risolto con una chat madre, chat figlie e file STATUS.md." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.5">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-grid"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="guide-back-link" href="index.html#guide">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Tutte le guide
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="guide-hero">
+  <div class="guide-hero-meta">
+    <span class="guide-cat">Organizzazione</span>
+    <span class="guide-readtime">// 5 min lettura</span>
+  </div>
+  <h1 class="guide-hero-title">Come non ricominciare da zero ogni volta che riapri Claude.</h1>
+  <div class="guide-hero-chips">
+    <span class="chip">Chat madre</span>
+    <span class="chip">STATUS.md</span>
+    <span class="chip">CLAUDE.md</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="guide-main">
+
+  <!-- Prose -->
+  <article class="guide-prose">
+
+    <h2>Il problema: nessuna chat sa delle altre</h2>
+    <p>
+      Avevo quattro chat Claude aperte in contemporanea. Una per SolidWorks, una per i contenuti,
+      una per il GTM, una per i side project. Ogni volta che riaprivo una, ripartivo da zero.
+    </p>
+    <p>
+      Chi sei? Su cosa lavoriamo? Dove eravamo rimasti?
+    </p>
+    <p>
+      Il problema non era Claude. Ero io che non avevo un sistema. Ogni chat era un'isola:
+      nessuna sapeva cosa stava succedendo nelle altre.
+    </p>
+
+    <div class="guide-callout callout-warning">
+      <div class="guide-callout-label">Il sintomo piu comune</div>
+      <p>
+        Riapri una chat dopo tre giorni. Claude non ricorda niente. Perdi 10 minuti
+        a rispiegare contesto, obiettivi, dove eravate rimasti. Poi succede di nuovo.
+        E di nuovo. E smetti di usare Claude per i progetti lunghi.
+      </p>
+    </div>
+
+    <h2>La soluzione: chat madre e chat figlie</h2>
+    <p>
+      Il sistema si divide in due livelli.
+    </p>
+    <ul>
+      <li>
+        <strong>Chat madre</strong> — tiene la visione d'insieme. Conosce tutti i progetti attivi,
+        le priorita, il backlog, le connessioni tra le cose. Quando non sai su cosa lavorare,
+        apri questa.
+      </li>
+      <li>
+        <strong>Chat figlie</strong> — una per progetto, lavora in verticale. Sa tutto di quel
+        progetto specifico, niente degli altri. Quando devi produrre, apri quella giusta.
+      </li>
+    </ul>
+    <p>
+      Non serve tenere queste chat aperte per sempre. Serve avere un modo per ripartire
+      da dove si era arrivati senza dover rispiegare niente.
+    </p>
+
+    <h2>Il canale tra le due: il file STATUS.md</h2>
+    <p>
+      Ogni progetto ha un file STATUS.md nella sua cartella. Tre sezioni, niente di piu:
+    </p>
+    <ul>
+      <li><strong>Cosa e stato fatto</strong> — le ultime azioni concrete</li>
+      <li><strong>Cosa blocca</strong> — problemi aperti, decisioni sospese</li>
+      <li><strong>Prossimo step</strong> — un'azione sola, chiara</li>
+    </ul>
+    <p>
+      Quando riapri la chat di un progetto, Claude legge quel file. Sa esattamente dove eravate.
+      Zero rispiegazioni, zero contesto perso.
+    </p>
+    <p>
+      Non e magia. E disciplina trasformata in sistema.
+    </p>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">Perche funziona</div>
+      <p>
+        Claude legge i file della cartella di lavoro in automatico se glielo dici nel CLAUDE.md.
+        Il file STATUS.md diventa la memoria persistente del progetto. Tu scrivi, Claude legge,
+        il lavoro continua da dove si era fermato.
+      </p>
+    </div>
+
+    <h2>Come impostarlo passo passo</h2>
+
+    <p><strong>Passo 1 — Crea un file STATUS.md in ogni cartella progetto</strong></p>
+    <p>
+      Vai nella cartella del progetto e crea il file. Non serve che sia perfetto subito:
+      basta la struttura base.
+    </p>
+
+    <p><strong>Passo 2 — Usa questo template</strong></p>
+    <div class="guide-code">
+<pre><span class="code-comment"># STATUS — [Nome progetto]</span>
+
+<span class="code-key">**Ultimo aggiornamento:**</span> YYYY-MM-DD
+<span class="code-key">**Sessioni totali:**</span> N
+
+<span class="code-comment">## Stato attuale</span>
+[Una riga: dov'e il progetto adesso]
+
+<span class="code-comment">## Ultima sessione</span>
+<span class="code-key">**Fatto:**</span>
+- [azione concreta]
+- [azione concreta]
+
+<span class="code-key">**Scoperto:**</span>
+- [cosa hai imparato o capito]
+
+<span class="code-key">**Bloccato su:**</span>
+- [problema aperto o decisione da prendere]
+
+<span class="code-comment">## Prossimo step</span>
+[Un'azione sola, chiara, fattibile in meno di un'ora]
+
+<span class="code-comment">## Storico sessioni</span>
+| Data | Fatto | Prossimo step |
+|------|-------|---------------|
+| YYYY-MM-DD | ... | ... |</pre>
+    </div>
+
+    <p><strong>Passo 3 — Di' a Claude di leggerlo nel CLAUDE.md</strong></p>
+    <p>
+      Aggiungi questa riga nel CLAUDE.md del progetto:
+    </p>
+    <div class="guide-code">
+<pre><span class="code-comment">## Stato progetto</span>
+Leggi STATUS.md all'inizio di ogni sessione per riprendere dal punto esatto.</pre>
+    </div>
+
+    <p><strong>Passo 4 — Aggiorna il file a fine sessione</strong></p>
+    <p>
+      Prima di chiudere la chat, 2 minuti: cosa e stato fatto, cosa blocca, prossimo step.
+      Non serve altro. La prossima sessione parte da qui.
+    </p>
+
+    <p><strong>Passo 5 — Configura la chat madre</strong></p>
+    <p>
+      Apri una chat Claude nella cartella root del tuo workspace. Crea un CLAUDE.md root
+      che elenca tutti i progetti attivi con il percorso al loro STATUS.md. Quando vuoi
+      capire le priorita o decidere su cosa lavorare, apri questa chat e chiedi.
+    </p>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">Il vantaggio reale</div>
+      <p>
+        Dopo qualche settimana il tuo workspace diventa leggibile. Non solo da Claude,
+        ma anche da te. Sai dove sei su ogni progetto in meno di 30 secondi.
+        Il sistema lavora anche quando non lo stai usando.
+      </p>
+    </div>
+
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="guide-sidebar">
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">File coinvolti</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <span class="tool-name">STATUS.md</span>
+          Un file per ogni progetto — stato, blocchi, prossimo step
+        </li>
+        <li>
+          <span class="tool-name">CLAUDE.md progetto</span>
+          Istruzione per leggere STATUS.md all'avvio
+        </li>
+        <li>
+          <span class="tool-name">CLAUDE.md root</span>
+          La mappa di tutti i progetti per la chat madre
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Struttura consigliata</div>
+      <ul class="guide-sidebar-list">
+        <li><code>Workspace/</code></li>
+        <li><code>&nbsp;&nbsp;CLAUDE.md</code> ← chat madre</li>
+        <li><code>&nbsp;&nbsp;Progetto-A/</code></li>
+        <li><code>&nbsp;&nbsp;&nbsp;&nbsp;CLAUDE.md</code></li>
+        <li><code>&nbsp;&nbsp;&nbsp;&nbsp;STATUS.md</code> ← canale</li>
+        <li><code>&nbsp;&nbsp;Progetto-B/</code></li>
+        <li><code>&nbsp;&nbsp;&nbsp;&nbsp;CLAUDE.md</code></li>
+        <li><code>&nbsp;&nbsp;&nbsp;&nbsp;STATUS.md</code> ← canale</li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Tempo per impostarlo</div>
+      <ul class="guide-sidebar-list">
+        <li>STATUS.md per progetto — 5 min</li>
+        <li>Aggiornare CLAUDE.md — 2 min</li>
+        <li>Prima sessione con il sistema — 10 min</li>
+        <li>Manutenzione a regime — 2 min/sessione</li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Next guide -->
+  <div class="guide-next-wrap">
+    <a class="guide-next" href="guida-sicurezza.html">
+      <div>
+        <div class="guide-next-label">Prossima guida</div>
+        <div class="guide-next-title">Come mettere le guardie al terminale e perche farlo subito</div>
+      </div>
+      <span class="guide-next-arrow" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelo-belforti-6a31891a8/" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">
+    Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.
+  </div>
+</footer>
+
+  <!-- Vercel Web Analytics -->
+  <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+</body>
+</html>
