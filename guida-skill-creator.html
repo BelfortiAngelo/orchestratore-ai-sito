@@ -1,0 +1,345 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Come creare skill custom in Claude Code · OrchestratoreAI</title>
+<meta name="description" content="Ogni task ripetitivo ti costa tempo a rispiegare il contesto. Come ho risolto con file .md che Claude legge come istruzioni permanenti, invocabili con /nome." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.5">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-grid"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="guide-back-link" href="index.html#guide">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Tutte le guide
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="guide-hero">
+  <div class="guide-hero-meta">
+    <span class="guide-cat">Automazione</span>
+    <span class="guide-readtime">// 6 min lettura</span>
+  </div>
+  <h1 class="guide-hero-title">Come ho smesso di rispiegare lo stesso task ogni settimana.</h1>
+  <div class="guide-hero-chips">
+    <span class="chip">Skill</span>
+    <span class="chip">/skill-creator</span>
+    <span class="chip">Comandi custom</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="guide-main">
+
+  <!-- Prose -->
+  <article class="guide-prose">
+
+    <h2>Il problema: Claude e bravo ma non ha memoria dei task</h2>
+    <p>
+      Ogni settimana faccio le stesse cose. Trascrivo video YouTube per estrarne contenuti.
+      Apro una sessione di lavoro e devo ricaricare il contesto. Scrivo bozze LinkedIn
+      seguendo sempre la stessa struttura.
+    </p>
+    <p>
+      Il problema: ogni volta che iniziavo uno di questi task, perdevo 5-10 minuti
+      a rispiegare a Claude come farlo. "Usa questo formato. Salva qui. Chiedi prima quest'altro."
+      Lo stesso copione, ogni volta.
+    </p>
+
+    <div class="guide-callout callout-warning">
+      <div class="guide-callout-label">Il costo nascosto</div>
+      <p>
+        Non e solo il tempo. E che ogni volta il risultato era leggermente diverso,
+        perche il contesto che davo era sempre un po' diverso. Nessuna coerenza,
+        nessuna standardizzazione. Stavo usando uno strumento potente in modo manuale.
+      </p>
+    </div>
+
+    <h2>Cos'e una skill in Claude Code</h2>
+    <p>
+      Una skill e un file di testo Markdown che Claude legge come un set di istruzioni permanenti.
+      Quando scrivi <code>/nome-skill</code> nella chat, Claude carica quel file e lo esegue.
+    </p>
+    <p>
+      Non e codice. Non e programmazione. E un documento con tre cose:
+    </p>
+    <ul>
+      <li>Cosa deve fare Claude quando invochi il comando</li>
+      <li>Quali input aspettarsi</li>
+      <li>Quali step seguire, in quale ordine</li>
+    </ul>
+    <p>
+      Scritto una volta, funziona per sempre. Ogni volta che invochi la skill,
+      Claude parte gia con il contesto completo. Zero rispiegazioni.
+    </p>
+
+    <h2>Come funziona /skill-creator</h2>
+    <p>
+      /skill-creator e una meta-skill: una skill che genera altre skill.
+      Invece di scrivere il file .md a mano, descrivi il problema a Claude
+      e lui costruisce la skill per te.
+    </p>
+    <p>Il flusso e questo:</p>
+    <ul>
+      <li>Invochi <code>/skill-creator</code></li>
+      <li>Descrivi il task che vuoi automatizzare ("ho bisogno di una skill che trascriva video YouTube")</li>
+      <li>Claude fa le domande giuste per capire il contesto — dove salvare, che formato, quali step</li>
+      <li>Genera il file .md con la struttura corretta</li>
+      <li>Lo salva nella cartella giusta</li>
+    </ul>
+    <p>
+      Il risultato e un file pronto, testato, con la struttura che Claude Code si aspetta.
+      Non devi sapere come si scrive una skill: basta saper descrivere cosa vuoi fare.
+    </p>
+
+    <h2>Esempio concreto: come ho creato /trascrivi-video</h2>
+    <p>
+      Ogni settimana trascrivevo video YouTube per usarli come base per i contenuti.
+      Il processo era sempre lo stesso: copiare l'URL, andare su un sito esterno,
+      copiare la trascrizione, incollarla da qualche parte.
+    </p>
+    <p>
+      Ho invocato <code>/skill-creator</code> e descritto il problema.
+      Claude ha chiesto: dove vuoi salvare le trascrizioni? Che formato preferisci?
+      Vuoi che ti chieda cosa fare con il testo dopo averlo scaricato?
+    </p>
+    <p>
+      Dieci minuti dopo avevo <code>/trascrivi-video</code>: una skill che prende l'URL
+      del video, scarica la trascrizione in italiano (o inglese se non disponibile),
+      mostra un'anteprima e chiede cosa farne. Tutto senza uscire da Claude Code.
+    </p>
+
+    <p><strong>Il file generato — struttura base:</strong></p>
+    <div class="guide-code">
+<pre><span class="code-comment"># Skill: /trascrivi-video</span>
+
+Scarica la trascrizione di un video YouTube e la restituisce
+pronta da usare.
+
+---
+
+<span class="code-comment">## Input</span>
+
+<span class="code-key">$ARGUMENTS</span> — URL del video YouTube.
+
+Esempi:
+- <span class="code-val">`/trascrivi-video https://youtu.be/abc123`</span>
+
+---
+
+<span class="code-comment">## Procedura</span>
+
+<span class="code-comment">### Step 1 — Scarica la trascrizione</span>
+Esegui lo script Python con l'URL passato come argomento.
+
+<span class="code-comment">### Step 2 — Mostra il risultato</span>
+Mostra lingua, durata, prime 500 parole come anteprima.
+Chiedi: "Cosa vuoi fare con questa trascrizione?"
+
+<span class="code-comment">### Step 3 — Salva se richiesto</span>
+Crea un file in Claude-Project/00_Inbox/ con il testo completo.</pre>
+    </div>
+
+    <h2>Template: struttura di una skill</h2>
+    <p>
+      Se vuoi scriverne una a mano, questa e la struttura minima che funziona:
+    </p>
+    <div class="guide-code">
+<pre><span class="code-comment"># Skill: /nome-skill</span>
+
+[Descrizione breve — cosa fa questa skill in una riga]
+
+---
+
+<span class="code-comment">## Input</span>
+
+<span class="code-key">$ARGUMENTS</span> — [cosa riceve come parametro, se serve]
+
+---
+
+<span class="code-comment">## Procedura</span>
+
+<span class="code-comment">### Step 1 — [Nome step]</span>
+[Istruzione chiara per Claude]
+
+<span class="code-comment">### Step 2 — [Nome step]</span>
+[Istruzione chiara per Claude]
+
+---
+
+<span class="code-comment">## Note</span>
+- [Vincoli, dipendenze, casi limite]
+
+---
+
+<span class="code-key">*Skill creata il YYYY-MM-DD*</span></pre>
+    </div>
+
+    <h2>Skill globali vs skill di progetto</h2>
+    <p>
+      Ci sono due posti dove salvare una skill, e la differenza e importante:
+    </p>
+    <ul>
+      <li>
+        <strong>Skill globale</strong> — salvata in <code>~/.claude/commands/</code>.
+        Disponibile in qualsiasi chat, su qualsiasi progetto. Usala per task trasversali:
+        trascrivi video, scrivi post LinkedIn, apri sessione.
+      </li>
+      <li>
+        <strong>Skill di progetto</strong> — salvata in <code>[progetto]/.claude/commands/</code>.
+        Disponibile solo quando lavori in quella cartella. Usala per task specifici
+        di un progetto: analizza commessa, genera preventivo, aggiorna status.
+      </li>
+    </ul>
+    <p>
+      Il principio: se la usi ovunque, salvala in globale. Se ha senso solo in un contesto,
+      salvala nel progetto.
+    </p>
+
+    <h2>Le skill che ho gia costruito</h2>
+    <p>
+      Queste sono le skill operative nel mio sistema. Le prossime guide le raccontano una per una:
+    </p>
+    <ul>
+      <li><code>/apri-sessione</code> — carica il contesto del progetto attivo, legge STATUS.md, imposta la sessione</li>
+      <li><code>/chiudi-sessione</code> — cristallizza la sessione in STATUS.md, definisce il prossimo step</li>
+      <li><code>/trascrivi-video</code> — scarica trascrizioni YouTube direttamente da Claude Code</li>
+      <li><code>/leggi-reddit</code> — analizza thread Reddit per estrarne segnali e insight utili</li>
+    </ul>
+    <p>
+      Ogni skill ha una storia dietro: un task che facevo a mano, un problema ripetuto,
+      una soluzione costruita in 10 minuti. Le guide arrivano.
+    </p>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">La logica del sistema</div>
+      <p>
+        Le skill non sostituiscono il pensiero. Automatizzano l'esecuzione.
+        Quando sai gia come fare una cosa e la fai sempre allo stesso modo,
+        c'e una skill da costruire. Quando ancora stai capendo come approcciarla,
+        tieni la flessibilita della chat libera.
+      </p>
+    </div>
+
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="guide-sidebar">
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Skill menzionate</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <span class="tool-name">/skill-creator</span>
+          Genera skill da una descrizione del problema
+        </li>
+        <li>
+          <span class="tool-name">/trascrivi-video</span>
+          Scarica trascrizioni YouTube
+        </li>
+        <li>
+          <span class="tool-name">/apri-sessione</span>
+          Carica contesto e STATUS.md all'avvio
+        </li>
+        <li>
+          <span class="tool-name">/chiudi-sessione</span>
+          Salva sessione e prossimo step
+        </li>
+        <li>
+          <span class="tool-name">/leggi-reddit</span>
+          Analizza thread per segnali e insight
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Dove salvare le skill</div>
+      <ul class="guide-sidebar-list">
+        <li><strong>Globale</strong></li>
+        <li><code>~/.claude/commands/</code></li>
+        <li>Disponibile ovunque</li>
+        <li style="margin-top:8px"><strong>Di progetto</strong></li>
+        <li><code>[progetto]/.claude/commands/</code></li>
+        <li>Solo in quella cartella</li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Tempo per creare una skill</div>
+      <ul class="guide-sidebar-list">
+        <li>Con /skill-creator — 10 min</li>
+        <li>A mano (template) — 20 min</li>
+        <li>Test e aggiustamenti — 10 min</li>
+        <li>Manutenzione — quasi zero</li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Next guide -->
+  <div class="guide-next-wrap">
+    <a class="guide-next" href="guida-chat-orchestratrice.html">
+      <div>
+        <div class="guide-next-label">Guida correlata</div>
+        <div class="guide-next-title">Come non ricominciare da zero ogni volta che riapri Claude</div>
+      </div>
+      <span class="guide-next-arrow" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelo-belforti-6a31891a8/" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">
+    Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.
+  </div>
+</footer>
+
+  <!-- Vercel Web Analytics -->
+  <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+</body>
+</html>
