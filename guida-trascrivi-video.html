@@ -1,0 +1,357 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/trascrivi-video — 40.000 caratteri in 2 secondi · OrchestratoreAI</title>
+<meta name="description" content="Ogni video YouTube richiedeva 3 minuti su un sito esterno. Ho costruito /trascrivi-video: incolli il link, ricevi la trascrizione completa direttamente in Claude. 8 righe di Python, una skill, zero attrito." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.5">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-grid"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="guide-back-link" href="index.html#guide">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Tutte le guide
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="guide-hero">
+  <div class="guide-hero-meta">
+    <span class="guide-cat">Skill</span>
+    <span class="guide-readtime">// 5 min lettura</span>
+  </div>
+  <h1 class="guide-hero-title">3 minuti su un sito esterno. Ogni volta. Poi ho costruito /trascrivi-video.</h1>
+  <div class="guide-hero-chips">
+    <span class="chip">/trascrivi-video</span>
+    <span class="chip">Python</span>
+    <span class="chip">YouTube</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="guide-main">
+
+  <!-- Prose -->
+  <article class="guide-prose">
+
+    <h2>La sequenza esatta del fastidio</h2>
+    <p>
+      Ogni volta che volevo analizzare un video YouTube con Claude, la stessa sequenza:
+    </p>
+    <p>
+      Copio il link. Apro youtubetotranscript.com. Aspetto il caricamento. Seleziono tutto.
+      Copio. Torno su Claude. Incollo. Scrivo: "Analizza questo testo."
+    </p>
+    <p>
+      Tre minuti. Ogni volta. Per un'operazione che avrebbe dovuto essere automatica.
+    </p>
+
+    <div class="guide-callout callout-warning">
+      <div class="guide-callout-label">Il problema vero</div>
+      <p>
+        Non erano i 3 minuti in se. Era che ogni volta che volevo usare un video come materiale,
+        c'era un passaggio manuale che interrompeva il flusso. Piccolo, presente, irritante.
+        Abbastanza da farmi rimandare o saltare del tutto l'analisi.
+      </p>
+    </div>
+
+    <h2>Come e nata la skill</h2>
+    <p>
+      Ho aperto Claude Code e invocato <code>/skill-creator</code>.
+      Ho descritto il problema in una riga: "voglio trascrivere video YouTube senza uscire da Claude."
+    </p>
+    <p>
+      Claude ha fatto tre domande:
+    </p>
+    <ul>
+      <li>Dove vuoi salvare le trascrizioni?</li>
+      <li>Vuoi che ti mostri un'anteprima prima di salvare?</li>
+      <li>Cosa fai di solito con il testo dopo averlo scaricato?</li>
+    </ul>
+    <p>
+      Dieci minuti dopo avevo <code>/trascrivi-video</code> operativa. Da allora non ho piu
+      aperto un sito esterno per una trascrizione.
+    </p>
+
+    <h2>Come funziona</h2>
+    <p>
+      La skill e composta da due file: uno script Python che scarica la trascrizione,
+      e un file Markdown che dice a Claude come usarlo.
+    </p>
+
+    <p><strong>Lo script Python — scarica_trascrizione.py</strong></p>
+    <p>
+      Usa la libreria <code>youtube-transcript-api</code>. Prova prima italiano,
+      poi inglese, poi qualsiasi lingua disponibile.
+    </p>
+    <div class="guide-code">
+<pre><span class="code-comment">"""
+Scarica la trascrizione di un video YouTube dato l'URL.
+Uso: python trascrivi_video.py https://youtu.be/VIDEO_ID
+"""</span>
+
+<span class="code-key">import</span> sys, re
+<span class="code-key">from</span> youtube_transcript_api <span class="code-key">import</span> YouTubeTranscriptApi, NoTranscriptFound
+
+<span class="code-key">def</span> estrai_video_id(url):
+    patterns = [<span class="code-val">r'v=([^&\n]+)'</span>, <span class="code-val">r'youtu\.be/([^?\n]+)'</span>, <span class="code-val">r'embed/([^?\n]+)'</span>]
+    <span class="code-key">for</span> p <span class="code-key">in</span> patterns:
+        m = re.search(p, url)
+        <span class="code-key">if</span> m: <span class="code-key">return</span> m.group(1)
+    <span class="code-key">return</span> <span class="code-val">None</span>
+
+<span class="code-key">def</span> scarica_trascrizione(url):
+    video_id = estrai_video_id(url)
+    ytt = YouTubeTranscriptApi()
+    <span class="code-key">for</span> lang <span class="code-key">in</span> [<span class="code-val">'it'</span>, <span class="code-val">'en'</span>]:
+        <span class="code-key">try</span>:
+            transcript = ytt.fetch(video_id, languages=[lang])
+            testo = <span class="code-val">' '</span>.join([e.text <span class="code-key">for</span> e <span class="code-key">in</span> transcript])
+            print(f<span class="code-val">"[LINGUA: {lang}] [CARATTERI: {len(testo)}]\n"</span>)
+            print(testo)
+            <span class="code-key">return</span>
+        <span class="code-key">except</span> NoTranscriptFound:
+            <span class="code-key">continue</span>
+    print(<span class="code-val">"ERRORE: nessuna trascrizione disponibile per questo video."</span>)
+
+<span class="code-key">if</span> __name__ == <span class="code-val">"__main__"</span>:
+    scarica_trascrizione(sys.argv[1])</pre>
+    </div>
+
+    <p><strong>Il file Markdown della skill — trascrivi-video.md</strong></p>
+    <p>
+      Questo e il file che Claude legge quando invochi <code>/trascrivi-video</code>.
+      Salvalo in <code>~/.claude/commands/trascrivi-video.md</code> per averlo disponibile ovunque.
+    </p>
+    <div class="guide-code">
+<pre><span class="code-comment"># Skill: /trascrivi-video</span>
+
+Scarica la trascrizione di un video YouTube e la restituisce
+pronta da usare. Non serve uscire da Claude Code.
+
+---
+
+<span class="code-comment">## Input</span>
+
+<span class="code-key">$ARGUMENTS</span> — URL del video YouTube.
+
+Esempi:
+- <span class="code-val">`/trascrivi-video https://www.youtube.com/watch?v=ID`</span>
+- <span class="code-val">`/trascrivi-video https://youtu.be/ID`</span>
+
+---
+
+<span class="code-comment">## Procedura</span>
+
+<span class="code-comment">### Step 1 — Scarica la trascrizione</span>
+Esegui:
+```
+python ~/.claude/scripts/trascrivi_video.py URL_DEL_VIDEO
+```
+
+<span class="code-comment">### Step 2 — Mostra il risultato</span>
+Mostra lingua, video ID, lunghezza in caratteri, prime 500 parole.
+Poi chiedi: "Cosa vuoi fare con questa trascrizione?"
+
+Opzioni suggerite:
+- Salvarla nell'inbox del progetto
+- Estrarre i punti chiave
+- Usarla come base per un post
+
+<span class="code-comment">### Step 3 — Salva se richiesto</span>
+Crea un file in 00_Inbox/ con il testo completo e la fonte.
+
+---
+
+<span class="code-comment">## Note</span>
+- Libreria: youtube-transcript-api (pip install youtube-transcript-api)
+- Prova prima italiano, poi inglese, poi qualsiasi lingua disponibile
+- Non funziona se il creatore ha disabilitato i sottotitoli</pre>
+    </div>
+
+    <h2>Come installare</h2>
+
+    <p><strong>Passo 1 — Installa la libreria Python</strong></p>
+    <div class="guide-code">
+      <pre>pip install youtube-transcript-api</pre>
+    </div>
+
+    <p><strong>Passo 2 — Salva lo script</strong></p>
+    <p>Crea la cartella <code>~/.claude/scripts/</code> e salva lo script come <code>trascrivi_video.py</code>.</p>
+
+    <p><strong>Passo 3 — Salva la skill</strong></p>
+    <p>
+      Crea la cartella <code>~/.claude/commands/</code> e salva il file Markdown come
+      <code>trascrivi-video.md</code>. Riavvia Claude Code.
+    </p>
+
+    <p><strong>Passo 4 — Testa</strong></p>
+    <div class="guide-code">
+      <pre>/trascrivi-video https://youtu.be/dQw4w9WgXcQ</pre>
+    </div>
+    <p>
+      Se vedi <code>[LINGUA: en] [CARATTERI: 42000]</code> seguito dal testo, funziona.
+    </p>
+
+    <h2>Esempi d'uso pratico</h2>
+    <ul>
+      <li>
+        <strong>Analisi interviste</strong> — trascrivi un'intervista a un founder o investitore,
+        poi chiedi a Claude di estrarre le citazioni piu interessanti o i pattern ricorrenti.
+      </li>
+      <li>
+        <strong>Smontare un talk</strong> — dai un TED talk o una conferenza,
+        estrai i punti chiave, la struttura narrativa, le domande che apre.
+      </li>
+      <li>
+        <strong>Materiale da conferenze</strong> — segui una conferenza YouTube in streaming,
+        trascrivi i talk che ti interessano e archiviali nel tuo inbox.
+      </li>
+      <li>
+        <strong>Ricerca competitiva</strong> — trascrivi video di concorrenti o creator nel tuo settore,
+        analizza linguaggio, posizionamento, argomenti ricorrenti.
+      </li>
+    </ul>
+
+    <h2>Quando NON usarla</h2>
+    <ul>
+      <li>
+        <strong>Video con sottotitoli disabilitati</strong> — alcuni creator disabilitano le trascrizioni.
+        La skill lo segnala con un errore chiaro.
+      </li>
+      <li>
+        <strong>Audio non chiaro o dialetti</strong> — le trascrizioni auto-generate di YouTube
+        sono generate dall'audio. Se l'audio e distorto o dialettale, la trascrizione sara inaccurata.
+      </li>
+      <li>
+        <strong>Video molto brevi (sotto 2 minuti)</strong> — per clip brevi e spesso piu veloce
+        ascoltare direttamente.
+      </li>
+      <li>
+        <strong>Lingue rare</strong> — la skill prova italiano e inglese. Per altre lingue,
+        la trascrizione potrebbe non essere disponibile o di qualita inferiore.
+      </li>
+    </ul>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">Il principio dietro</div>
+      <p>
+        Non si parte dall'idea. Si parte dal fastidio. Ogni task manuale che fai piu di due volte
+        e una skill che non hai ancora costruito. La domanda giusta non e "cosa potrei automatizzare"
+        ma "cosa mi ha fatto perdere tempo questa settimana."
+      </p>
+    </div>
+
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="guide-sidebar">
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Requisiti</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <span class="tool-name">Python 3.8+</span>
+          Gia installato su macOS/Linux. Su Windows: python.org
+        </li>
+        <li>
+          <span class="tool-name">youtube-transcript-api</span>
+          <code>pip install youtube-transcript-api</code>
+        </li>
+        <li>
+          <span class="tool-name">Claude Code</span>
+          CLI di Anthropic — esegue la skill
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Formati URL supportati</div>
+      <ul class="guide-sidebar-list">
+        <li><code>youtube.com/watch?v=ID</code></li>
+        <li><code>youtu.be/ID</code></li>
+        <li><code>youtube.com/embed/ID</code></li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Dove salvare i file</div>
+      <ul class="guide-sidebar-list">
+        <li><strong>Script Python</strong></li>
+        <li><code>~/.claude/scripts/</code></li>
+        <li style="margin-top:8px"><strong>Skill globale</strong></li>
+        <li><code>~/.claude/commands/</code></li>
+        <li style="margin-top:8px"><strong>Skill di progetto</strong></li>
+        <li><code>[progetto]/.claude/commands/</code></li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Next guide -->
+  <div class="guide-next-wrap">
+    <a class="guide-next" href="guida-skill-creator.html">
+      <div>
+        <div class="guide-next-label">Il metodo dietro questa skill</div>
+        <div class="guide-next-title">Come ho smesso di rispiegare lo stesso task ogni settimana</div>
+      </div>
+      <span class="guide-next-arrow" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelo-belforti-6a31891a8/" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">
+    Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.
+  </div>
+</footer>
+
+  <!-- Vercel Web Analytics -->
+  <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+</body>
+</html>
