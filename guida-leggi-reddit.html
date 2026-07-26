@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/leggi-reddit — l'API segreta che nessuno ti dice · OrchestratoreAI</title>
+<meta name="description" content="Reddit blocca WebFetch, browser MCP e curl. Ma ha un'API JSON pubblica nascosta: aggiungi .json a qualsiasi URL e ottieni post + commenti strutturati. Zero account, zero librerie." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.5">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-grid"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="guide-back-link" href="index.html#guide">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Tutte le guide
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="guide-hero">
+  <div class="guide-hero-meta">
+    <span class="guide-cat">Skill</span>
+    <span class="guide-readtime">// 5 min lettura</span>
+  </div>
+  <h1 class="guide-hero-title">Reddit blocca tutto. Tranne una cosa che nessuno menziona.</h1>
+  <div class="guide-hero-chips">
+    <span class="chip">/leggi-reddit</span>
+    <span class="chip">Reddit JSON API</span>
+    <span class="chip">Zero librerie</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="guide-main">
+
+  <!-- Prose -->
+  <article class="guide-prose">
+
+    <h2>Il problema: Reddit non vuole essere letto da Claude</h2>
+    <p>
+      Ogni volta che trovavo un thread interessante su Reddit, la stessa sequenza manuale:
+    </p>
+    <p>
+      Apro il browser. Scorri il thread. Seleziono tutto il testo utile. Copio. Torno su Claude.
+      Incollo. E spiego cosa e cosa in un muro di testo non strutturato.
+    </p>
+    <p>
+      Ho provato tutte le alternative. WebFetch restituisce HTML pieno di noise o viene bloccato.
+      Il browser MCP non riesce a navigare Reddit in modo affidabile. Curl riceve un 403.
+      Reddit sa che non sei un browser vero e non collabora.
+    </p>
+
+    <div class="guide-callout callout-warning">
+      <div class="guide-callout-label">Il fastidio specifico</div>
+      <p>
+        I thread Reddit piu utili hanno 200-300 commenti. Selezionarli a mano,
+        capire quali sono i piu votati, mantenere la struttura delle risposte annidate:
+        impossibile farlo velocemente con copia-incolla. Finivo per prendere solo 3-4 commenti
+        e perdere il 90% del valore del thread.
+      </p>
+    </div>
+
+    <h2>La scoperta: Reddit ha una API JSON pubblica e non lo sa nessuno</h2>
+    <p>
+      Qualsiasi URL di Reddit diventa un endpoint JSON se aggiungi <code>.json</code> alla fine.
+      Nessuna registrazione. Nessun OAuth. Nessuna API key. Zero.
+    </p>
+    <p>
+      Prendi un URL normale:
+    </p>
+    <div class="guide-code">
+      <pre>https://www.reddit.com/r/ClaudeAI/comments/abc123/titolo_del_post/</pre>
+    </div>
+    <p>Aggiungi <code>.json</code>:</p>
+    <div class="guide-code">
+      <pre>https://www.reddit.com/r/ClaudeAI/comments/abc123/titolo_del_post/<span class="code-key">.json</span></pre>
+    </div>
+    <p>
+      Ottieni un JSON strutturato con il post completo, tutti i commenti annidati,
+      upvotes, autori, timestamp. Tutto. Pronto da parsare.
+    </p>
+    <p>
+      Non e un bug. Non e una funzione nascosta. E l'API pubblica di Reddit,
+      documentata ma ignorata perche tutti cercano OAuth e token.
+    </p>
+
+    <h2>Come funziona la skill</h2>
+    <p>
+      La skill usa questa API con uno script Python puro — zero librerie esterne,
+      solo moduli della stdlib. Funziona su qualsiasi macchina con Python installato.
+    </p>
+
+    <p><strong>Lo script Python — leggi_reddit.py</strong></p>
+    <div class="guide-code">
+<pre><span class="code-comment">"""
+Legge un post Reddit e restituisce contenuto + commenti top.
+Usa l'API JSON pubblica — zero account, zero OAuth.
+Uso: python leggi_reddit.py https://reddit.com/r/sub/comments/ID/
+"""</span>
+
+<span class="code-key">import</span> sys, re, json, urllib.request
+
+<span class="code-key">def</span> estrai_info_url(url):
+    pattern = <span class="code-val">r'reddit\.com/r/([^/]+)/comments/([^/]+)'</span>
+    match = re.search(pattern, url)
+    <span class="code-key">if</span> match: <span class="code-key">return</span> match.group(1), match.group(2)
+    <span class="code-key">return None</span>, <span class="code-val">None</span>
+
+<span class="code-key">def</span> leggi_post(url):
+    subreddit, post_id = estrai_info_url(url)
+    json_url = f<span class="code-val">"https://www.reddit.com/r/{subreddit}/comments/{post_id}/.json?limit=25&depth=2"</span>
+
+    headers = {<span class="code-val">'User-Agent'</span>: <span class="code-val">'ClaudeCodeReader/1.0'</span>, <span class="code-val">'Accept'</span>: <span class="code-val">'application/json'</span>}
+    req = urllib.request.Request(json_url, headers=headers)
+
+    <span class="code-key">with</span> urllib.request.urlopen(req, timeout=15) <span class="code-key">as</span> r:
+        data = json.loads(r.read().decode(<span class="code-val">'utf-8'</span>))
+
+    <span class="code-comment"># Post principale</span>
+    post = data[0][<span class="code-val">'data'</span>][<span class="code-val">'children'</span>][0][<span class="code-val">'data'</span>]
+    print(f<span class="code-val">"[r/{subreddit}] {post['title']}"</span>)
+    print(f<span class="code-val">"u/{post['author']} | {post['score']} upvotes | {post['num_comments']} commenti\n"</span>)
+    print(post.get(<span class="code-val">'selftext'</span>, <span class="code-val">''</span>))
+
+    <span class="code-comment"># Commenti top (max 15)</span>
+    <span class="code-key">for</span> c <span class="code-key">in</span> data[1][<span class="code-val">'data'</span>][<span class="code-val">'children'</span>][:15]:
+        <span class="code-key">if</span> c[<span class="code-val">'kind'</span>] == <span class="code-val">'t1'</span>:
+            d = c[<span class="code-val">'data'</span>]
+            print(f<span class="code-val">"\n[u/{d['author']} | {d['score']} punti]"</span>)
+            print(d.get(<span class="code-val">'body'</span>, <span class="code-val">''</span>)[:1000])
+
+<span class="code-key">if</span> __name__ == <span class="code-val">"__main__"</span>:
+    leggi_post(sys.argv[1])</pre>
+    </div>
+
+    <p><strong>Il file Markdown della skill — leggi-reddit.md</strong></p>
+    <p>
+      Salvalo in <code>~/.claude/commands/leggi-reddit.md</code> per averlo disponibile ovunque.
+    </p>
+    <div class="guide-code">
+<pre><span class="code-comment"># Skill: /leggi-reddit</span>
+
+Legge un post Reddit (testo + commenti top) direttamente da Claude Code.
+Zero account, zero OAuth — usa l'API JSON pubblica di Reddit.
+
+---
+
+<span class="code-comment">## Input</span>
+
+<span class="code-key">$ARGUMENTS</span> — URL del post Reddit.
+
+Esempi:
+- <span class="code-val">`/leggi-reddit https://reddit.com/r/ClaudeAI/comments/abc123/`</span>
+
+---
+
+<span class="code-comment">## Procedura</span>
+
+<span class="code-comment">### Step 1 — Scarica il post</span>
+Esegui:
+```
+python ~/.claude/scripts/leggi_reddit.py URL_DEL_POST
+```
+
+<span class="code-comment">### Step 2 — Mostra il risultato</span>
+Mostra titolo, autore, upvotes, numero commenti.
+Mostra il corpo del post completo.
+Mostra i commenti top (max 15) con risposte di primo livello.
+Chiedi: "Cosa vuoi fare con questo post?"
+
+<span class="code-comment">### Step 3 — Salva se richiesto</span>
+Crea un file in 00_Inbox/ con post + commenti chiave e la fonte.
+
+---
+
+<span class="code-comment">## Note</span>
+- Nessuna dipendenza esterna — solo stdlib Python
+- Funziona con qualsiasi URL reddit.com pubblico
+- Non funziona con post rimossi o subreddit privati
+- Rate limit Reddit: aspetta 10-30 secondi tra chiamate ravvicinate</pre>
+    </div>
+
+    <h2>Come installare</h2>
+
+    <p><strong>Passo 1 — Salva lo script</strong></p>
+    <p>
+      Crea la cartella <code>~/.claude/scripts/</code> e salva lo script come
+      <code>leggi_reddit.py</code>. Nessuna libreria da installare — usa solo Python puro.
+    </p>
+
+    <p><strong>Passo 2 — Salva la skill</strong></p>
+    <p>
+      Crea la cartella <code>~/.claude/commands/</code> e salva il file Markdown come
+      <code>leggi-reddit.md</code>. Riavvia Claude Code.
+    </p>
+
+    <p><strong>Passo 3 — Testa</strong></p>
+    <div class="guide-code">
+      <pre>/leggi-reddit https://www.reddit.com/r/ClaudeAI/comments/1sme1zw/</pre>
+    </div>
+    <p>
+      Se vedi <code>[r/ClaudeAI] Titolo del post</code> seguito da upvotes e commenti, funziona.
+    </p>
+
+    <h2>Esempi d'uso pratico</h2>
+    <ul>
+      <li>
+        <strong>Pattern di adozione</strong> — analizza thread di r/ClaudeAI o r/ChatGPT
+        per capire come le persone usano i tool AI nella pratica. Cosa blocca, cosa funziona,
+        che workflow hanno costruito.
+      </li>
+      <li>
+        <strong>Insight da subreddit di nicchia</strong> — entra in subreddit verticali
+        sul tuo settore, leggi i thread piu votati degli ultimi mesi, estrai i problemi ricorrenti.
+      </li>
+      <li>
+        <strong>Ricerca competitiva</strong> — cerca menzioni di competitor o tool alternativi,
+        leggi cosa dice chi li ha provati davvero. Meno filtrato di qualsiasi recensione.
+      </li>
+      <li>
+        <strong>Sintesi di thread lunghi</strong> — thread con 300 commenti diventano
+        una sintesi in 5 punti. Claude legge tutto e ti da quello che serve.
+      </li>
+    </ul>
+
+    <h2>Quando NON usarla</h2>
+    <ul>
+      <li>
+        <strong>Post rimossi o cancellati</strong> — l'API restituisce il post ma il testo
+        mostra <code>[deleted]</code> o <code>[removed]</code>. Niente da fare.
+      </li>
+      <li>
+        <strong>Subreddit privati</strong> — richiedono autenticazione. La skill restituisce
+        un errore 403.
+      </li>
+      <li>
+        <strong>Uso intensivo in sequenza</strong> — Reddit ha un rate limit non documentato.
+        Se leggi piu post di fila, aspetta 10-30 secondi tra una chiamata e l'altra.
+      </li>
+      <li>
+        <strong>Post solo immagine o link</strong> — la skill mostra il titolo e il link esterno,
+        ma non c'e testo da analizzare. Utile solo per i commenti.
+      </li>
+    </ul>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">Il principio dietro</div>
+      <p>
+        Prima di costruire qualcosa di complesso, cerca sempre se esiste gia un endpoint
+        pubblico che fa quello che ti serve. Reddit, Hacker News, GitHub, Wikipedia:
+        tutti hanno API JSON native che non richiedono autenticazione per la lettura.
+        Il problema non era Reddit. Era che non sapevo dove cercare.
+      </p>
+    </div>
+
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="guide-sidebar">
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Requisiti</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <span class="tool-name">Python 3.8+</span>
+          Solo stdlib — nessuna libreria da installare
+        </li>
+        <li>
+          <span class="tool-name">Claude Code</span>
+          CLI di Anthropic — esegue la skill
+        </li>
+        <li>
+          <span class="tool-name">Reddit pubblico</span>
+          Funziona su qualsiasi subreddit accessibile dal browser
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Il trucco .json</div>
+      <ul class="guide-sidebar-list">
+        <li>URL normale:</li>
+        <li><code>reddit.com/r/sub/comments/ID/</code></li>
+        <li style="margin-top:8px">URL JSON:</li>
+        <li><code>reddit.com/r/sub/comments/ID/<strong>.json</strong></code></li>
+        <li style="margin-top:8px">Funziona anche su:</li>
+        <li><code>reddit.com/r/sub/.json</code></li>
+        <li><code>reddit.com/r/sub/top/.json</code></li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Guide correlate</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <a href="guida-skill-creator.html">Come creare skill custom</a>
+          Il metodo per costruire qualsiasi skill
+        </li>
+        <li>
+          <a href="guida-trascrivi-video.html">/trascrivi-video</a>
+          Stesso pattern applicato a YouTube
+        </li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Next guide -->
+  <div class="guide-next-wrap">
+    <a class="guide-next" href="guida-trascrivi-video.html">
+      <div>
+        <div class="guide-next-label">Stessa idea, fonte diversa</div>
+        <div class="guide-next-title">3 minuti su un sito esterno. Ogni volta. Poi ho costruito /trascrivi-video.</div>
+      </div>
+      <span class="guide-next-arrow" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelo-belforti-6a31891a8/" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">
+    Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.
+  </div>
+</footer>
+
+  <!-- Vercel Web Analytics -->
+  <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+</body>
+</html>
