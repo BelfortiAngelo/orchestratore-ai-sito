@@ -1,0 +1,459 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>/apri-sessione e /chiudi-sessione — il ritmo che mancava · OrchestratoreAI</title>
+<meta name="description" content="Ogni sessione con Claude cominciava con 10 minuti di rispiegazione. Ho costruito due skill gemelle: /apri-sessione legge il contesto e dà un briefing. /chiudi-sessione aggiorna STATUS.md. Zero rispiegazioni da settimane." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600&family=Manrope:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<link rel="stylesheet" href="guide.css" />
+</head>
+<body>
+
+<!-- Ambient -->
+<div class="ambient" aria-hidden="true" style="opacity:0.5">
+  <div class="ambient-blob ambient-blob-a"></div>
+  <div class="ambient-blob ambient-blob-b"></div>
+  <div class="ambient-grid"></div>
+</div>
+
+<!-- Nav -->
+<nav class="nav">
+  <a class="nav-logo" href="index.html">
+    <span class="nav-logo-mark" aria-hidden="true">
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+      <span class="nav-logo-dot"></span>
+    </span>
+    <span class="nav-logo-text">Orchestratore<span class="nav-logo-accent">AI</span></span>
+  </a>
+  <div class="nav-right">
+    <a class="guide-back-link" href="index.html#guide">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M19 12H5M11 6l-6 6 6 6"/></svg>
+      Tutte le guide
+    </a>
+  </div>
+</nav>
+
+<!-- Hero -->
+<header class="guide-hero">
+  <div class="guide-hero-meta">
+    <span class="guide-cat">Automazione</span>
+    <span class="guide-readtime">// 6 min lettura</span>
+  </div>
+  <h1 class="guide-hero-title">10 minuti a rispiegare il contesto. Ogni volta. Poi ho costruito /apri-sessione.</h1>
+  <div class="guide-hero-chips">
+    <span class="chip">/apri-sessione</span>
+    <span class="chip">/chiudi-sessione</span>
+    <span class="chip">STATUS.md</span>
+  </div>
+</header>
+
+<!-- Main -->
+<main class="guide-main">
+
+  <!-- Prose -->
+  <article class="guide-prose">
+
+    <h2>La sequenza che si ripeteva ogni giorno</h2>
+    <p>
+      Ogni mattina, stessa sequenza. Apro Claude. Scrivo: "riprendiamo da dove eravamo rimasti."
+      Claude risponde: "Certo, su cosa stavi lavorando?" Io rispiego il progetto. Claude fa
+      ancora qualche domanda. Io aggiungo dettagli. Passano dieci minuti. Solo allora si comincia
+      a lavorare davvero.
+    </p>
+    <p>
+      Avevo gia STATUS.md — il file che documentava ogni sessione. Ma lo aprivo a mano,
+      lo incollavo io, spiegavo io la struttura. Il file esisteva, il rituale no.
+    </p>
+
+    <div class="guide-callout callout-warning">
+      <div class="guide-callout-label">Il costo reale</div>
+      <p>
+        Non erano solo i dieci minuti. Era che ogni sessione cominciava in salita.
+        Con un'ora disponibile, perderne dieci a ricaricare il contesto significava
+        lavorare con un terzo del tempo utile gia consumato. E la qualita del lavoro
+        nella prima parte della sessione era sempre peggiore.
+      </p>
+    </div>
+
+    <h2>La soluzione: due skill che lavorano in coppia</h2>
+    <p>
+      La risposta non era un'unica skill ma due che si completano.
+      Una per aprire, una per chiudere. Come un rituale di inizio e fine giornata,
+      applicato al lavoro con l'AI.
+    </p>
+    <p>
+      <strong>/apri-sessione</strong> — invocata all'inizio. Legge STATUS.md del progetto attivo,
+      richiama il profilo di chi sei e come lavori, e restituisce un briefing in tre punti:
+      cosa hai fatto l'ultima volta, dove eri bloccato, qual era il prossimo step concordato.
+      Poi chiede conferma prima di partire.
+    </p>
+    <p>
+      <strong>/chiudi-sessione</strong> — invocata alla fine. Guarda la conversazione,
+      estrae quello che e successo (fatto, scoperto, bloccato, prossimo step) e aggiorna
+      STATUS.md. Niente da ricordare. Niente da scrivere a mano. Il file si aggiorna da solo.
+    </p>
+    <p>
+      Il ciclo che si crea: ogni apertura parte da dove la chiusura si e fermata.
+      Le sessioni diventano capitoli di uno stesso libro, non storie separate.
+    </p>
+
+    <h2>Il file della skill /apri-sessione</h2>
+    <p>
+      Salvalo in <code>~/.claude/commands/apri-sessione.md</code> per averlo disponibile
+      in qualsiasi progetto. Non serve nessuno script Python, nessuna libreria esterna.
+      E solo testo Markdown che Claude legge come istruzioni.
+    </p>
+    <div class="guide-code">
+<pre><span class="code-comment"># Skill: /apri-sessione</span>
+
+Esegui questa procedura all'inizio di ogni sessione di lavoro.
+
+---
+
+<span class="code-comment">## Obiettivo</span>
+
+Portare Angelo (e Claude) immediatamente nel contesto giusto.
+Ogni sessione inizia gia calda. Zero rispiegazioni.
+
+---
+
+<span class="code-comment">## Procedura</span>
+
+<span class="code-comment">### Step 1 — Identifica il progetto</span>
+Guarda la working directory. Se non e chiaro su cosa si lavora,
+chiedi: <span class="code-val">"Su cosa lavoriamo oggi?"</span> e aspetta.
+
+<span class="code-comment">### Step 2 — Leggi il contesto</span>
+Leggi in parallelo:
+- STATUS.md nella cartella del progetto (se esiste)
+- CLAUDE.md nella root (chi e Angelo, come lavora)
+- File di memoria rilevanti in .claude/projects/.../memory/
+
+<span class="code-comment">### Step 3 — Briefing di apertura</span>
+Presenta un briefing breve e concreto:
+
+```
+Bentornato su [Nome Progetto].
+
+Ultima sessione ([data]):
+- Hai fatto: [sintesi 1-2 righe]
+- Eri bloccato su: [ostacolo]
+
+Prossimo step concordato: [cosa avevamo deciso]
+
+Vuoi partire da qui o c'e qualcosa di nuovo?
+```
+
+Se STATUS.md non esiste ancora, dillo e chiedi dove siamo.
+
+<span class="code-comment">### Step 4 — Attendi conferma</span>
+Non iniziare a lavorare finche Angelo non ha confermato.
+Potrebbe avere novita dall'ultima sessione.
+
+<span class="code-comment">### Step 5 — Al via</span>
+Confermata la direzione, inizia con il prossimo step concreto.
+Niente teoria, niente riepilogo ulteriore. Si va.
+
+---
+
+<span class="code-key">*Skill creata il 2026-04-09*</span></pre>
+    </div>
+
+    <h2>Il file della skill /chiudi-sessione</h2>
+    <p>
+      Salvalo in <code>~/.claude/commands/chiudi-sessione.md</code>. Questa skill non chiede
+      nulla: guarda la conversazione, estrae le informazioni, scrive il file.
+    </p>
+    <div class="guide-code">
+<pre><span class="code-comment"># Skill: /chiudi-sessione</span>
+
+Esegui questa procedura alla fine di ogni sessione di lavoro.
+
+---
+
+<span class="code-comment">## Obiettivo</span>
+
+Cristallizzare quello che e successo in un STATUS.md aggiornato.
+La prossima sessione parte da dove ci siamo fermati. Zero rispiegazioni.
+
+---
+
+<span class="code-comment">## Procedura</span>
+
+<span class="code-comment">### Step 1 — Identifica il progetto attivo</span>
+Guarda la working directory e la conversazione.
+Se non e chiaro, chiedi: <span class="code-val">"Su quale progetto chiudiamo?"</span>
+
+<span class="code-comment">### Step 2 — Raccogli le informazioni</span>
+Estrai dalla conversazione:
+- Cosa abbiamo fatto (output concreti, decisioni prese)
+- Cosa abbiamo scoperto (nuovi vincoli, insight)
+- Dove siamo bloccati (ostacoli, domande aperte)
+- Prossimo step (UNA cosa concreta per la prossima sessione)
+
+<span class="code-comment">### Step 3 — Aggiorna STATUS.md</span>
+
+```markdown
+# STATUS — [Nome Progetto]
+
+**Ultimo aggiornamento:** [data]
+**Sessioni totali:** [n]
+
+## Stato attuale
+[Una riga: dove siamo nel progetto]
+
+## Ultima sessione ([data])
+**Fatto:**
+- [punto 1]
+
+**Scoperto:**
+- [novita emersa]
+
+**Bloccato su:**
+- [ostacolo o domanda aperta]
+
+## Prossimo step
+[UNA cosa concreta, fattibile nella prossima sessione]
+
+## Storico sessioni
+| Data | Fatto | Prossimo step |
+|------|-------|---------------|
+| [data] | [sintesi] | [step] |
+```
+
+<span class="code-comment">### Step 4 — Output finale</span>
+Mostra:
+1. Riepilogo di 3 righe su cosa e stato fatto
+2. Conferma che STATUS.md e aggiornato
+3. Il prossimo step in grassetto
+
+---
+
+<span class="code-key">*Skill creata il 2026-04-09*</span></pre>
+    </div>
+
+    <h2>Come installare le skill</h2>
+
+    <p><strong>Passo 1 — Crea la cartella comandi</strong></p>
+    <p>
+      Se non esiste ancora, crea la cartella <code>~/.claude/commands/</code>.
+      Qui vivono le skill globali — disponibili in qualsiasi chat, su qualsiasi progetto.
+    </p>
+
+    <p><strong>Passo 2 — Salva i due file</strong></p>
+    <p>
+      Salva <code>apri-sessione.md</code> e <code>chiudi-sessione.md</code> in quella cartella.
+      Riavvia Claude Code.
+    </p>
+
+    <p><strong>Passo 3 — Crea STATUS.md per ogni progetto attivo</strong></p>
+    <p>
+      Le skill funzionano solo se esiste un file STATUS.md nella cartella del progetto.
+      Basta crearlo la prima volta con questo formato minimo e lasciare che
+      <code>/chiudi-sessione</code> lo aggiorni a ogni sessione da quel momento in poi.
+      La guida su <a href="guida-chat-orchestratrice.html">chat orchestratrice e STATUS.md</a>
+      spiega come strutturarlo.
+    </p>
+
+    <p><strong>Passo 4 — Testa l'apertura</strong></p>
+    <div class="guide-code">
+      <pre>/apri-sessione</pre>
+    </div>
+    <p>
+      Se vedi un briefing con "Ultima sessione", "Eri bloccato su" e "Prossimo step", funziona.
+      Se STATUS.md non esiste ancora, Claude te lo dira e chiedera dove siete rimasti.
+    </p>
+
+    <h2>Come funzionano in coppia</h2>
+    <p>
+      Il valore vero non e nella singola skill. E nel ciclo che si crea quando le usi entrambe.
+    </p>
+    <p>
+      Apri la sessione con <code>/apri-sessione</code>. Claude sa gia tutto.
+      Lavori per un'ora. Prima di chiudere, invochi <code>/chiudi-sessione</code>.
+      Claude guarda la conversazione, scrive STATUS.md, ti mostra il prossimo step.
+    </p>
+    <p>
+      Il giorno dopo, <code>/apri-sessione</code> legge quello che <code>/chiudi-sessione</code>
+      ha scritto. Il ciclo si chiude. Ogni sessione alimenta la prossima.
+    </p>
+    <p>
+      Non serve ricordare nulla. Non serve prendere appunti a mano. La memoria
+      del progetto e nel file, non nella tua testa.
+    </p>
+
+    <h2>Esempi d'uso pratico</h2>
+    <ul>
+      <li>
+        <strong>Freelance con piu clienti in parallelo</strong> — ogni cliente ha il suo
+        STATUS.md. Cambi progetto in un secondo. Nessuna contaminazione tra contesti diversi.
+        Il briefing di apertura ti riporta esattamente dove eri, su quel cliente, quel giorno.
+      </li>
+      <li>
+        <strong>Giornate frammentate</strong> — hai 20 minuti al mattino, un'ora nel pomeriggio,
+        mezz'ora la sera. Ogni blocco parte caldo grazie al briefing. Nessun tempo perso
+        a ricaricare il contesto ogni volta.
+      </li>
+      <li>
+        <strong>Progetti che dormono per settimane</strong> — tornare su qualcosa dopo due
+        settimane di pausa sarebbe un'ora di ricapitolazione. Con STATUS.md aggiornato,
+        sono tre righe di briefing. Poi si parte.
+      </li>
+      <li>
+        <strong>Team distribuiti</strong> — STATUS.md diventa il canale di passaggio tra
+        sessioni di persone diverse che lavorano sullo stesso progetto. Ognuno sa dove
+        e rimasto l'altro senza una call di allineamento.
+      </li>
+    </ul>
+
+    <h2>Quando NON usarle</h2>
+    <ul>
+      <li>
+        <strong>Chat esplorative one-shot</strong> — se stai facendo una domanda rapida
+        o esplorando un'idea nuova senza continuita, le skill aggiungono attrito inutile.
+        Sono utili per progetti con piu sessioni nel tempo.
+      </li>
+      <li>
+        <strong>Senza STATUS.md</strong> — /apri-sessione funziona male se il file non esiste
+        o e vuoto. Prima sessione su un progetto nuovo: raccontalo tu a Claude, poi
+        chiudi con /chiudi-sessione cosi il file viene creato.
+      </li>
+      <li>
+        <strong>Sessioni molto brevi (sotto 15 minuti)</strong> — per blocchi di lavoro
+        brevissimi, il rituale di apertura e chiusura puo costare piu del lavoro stesso.
+        Usale su sessioni di almeno mezz'ora.
+      </li>
+    </ul>
+
+    <div class="guide-callout">
+      <div class="guide-callout-label">Il principio piu grande</div>
+      <p>
+        I rituali di apertura e chiusura della giornata di lavoro esistono da secoli,
+        prima dell'AI. Un chirurgo fa il briefing prima dell'operazione e il debriefing dopo.
+        Un buon manager fa lo standup del mattino e la review del pomeriggio.
+        Non perche l'AI lo richiede — ma perche il lavoro frammentato senza punti di ancoraggio
+        produce risultati frammentati. Le skill non inventano nulla. Codificano quello
+        che i lavoratori piu disciplinati fanno gia.
+      </p>
+    </div>
+
+  </article>
+
+  <!-- Sidebar -->
+  <aside class="guide-sidebar">
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Requisiti</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <span class="tool-name">Claude Code</span>
+          CLI di Anthropic — esegue le skill
+        </li>
+        <li>
+          <span class="tool-name">STATUS.md</span>
+          Un file per ogni progetto attivo
+        </li>
+        <li>
+          <span class="tool-name">CLAUDE.md</span>
+          Opzionale ma consigliato — chi sei, come lavori
+        </li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Il ciclo</div>
+      <ul class="guide-sidebar-list">
+        <li><code>/apri-sessione</code></li>
+        <li>Legge STATUS.md</li>
+        <li>Briefing in 3 righe</li>
+        <li style="margin-top:8px">[lavoro della sessione]</li>
+        <li style="margin-top:8px"><code>/chiudi-sessione</code></li>
+        <li>Aggiorna STATUS.md</li>
+        <li>Definisce prossimo step</li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Dove salvare le skill</div>
+      <ul class="guide-sidebar-list">
+        <li><strong>Globale</strong></li>
+        <li><code>~/.claude/commands/</code></li>
+        <li>Disponibile su ogni progetto</li>
+        <li style="margin-top:8px"><strong>Di progetto</strong></li>
+        <li><code>[progetto]/.claude/commands/</code></li>
+        <li>Solo in quella cartella</li>
+      </ul>
+    </div>
+
+    <div class="guide-sidebar-card">
+      <div class="guide-sidebar-title">Guide correlate</div>
+      <ul class="guide-sidebar-list">
+        <li>
+          <a href="guida-chat-orchestratrice.html">Chat orchestratrice + STATUS.md</a>
+          Il sistema alla base di queste skill
+        </li>
+        <li>
+          <a href="guida-skill-creator.html">Come creare skill custom</a>
+          Il metodo per costruire la tua skill
+        </li>
+        <li>
+          <a href="guida-trascrivi-video.html">/trascrivi-video</a>
+          Un'altra skill della serie
+        </li>
+        <li>
+          <a href="guida-leggi-reddit.html">/leggi-reddit</a>
+          Un'altra skill della serie
+        </li>
+      </ul>
+    </div>
+
+  </aside>
+
+  <!-- Next guide -->
+  <div class="guide-next-wrap">
+    <a class="guide-next" href="guida-chat-orchestratrice.html">
+      <div>
+        <div class="guide-next-label">Il sistema alla base</div>
+        <div class="guide-next-title">Come non ricominciare da zero ogni volta che riapri Claude</div>
+      </div>
+      <span class="guide-next-arrow" aria-hidden="true">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+
+</main>
+
+<!-- Footer -->
+<footer class="footer">
+  <div class="footer-row">
+    <div class="footer-brand">
+      <span class="nav-logo-mark" aria-hidden="true">
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+        <span class="nav-logo-dot"></span>
+      </span>
+      <span>OrchestratoreAI</span>
+    </div>
+    <div class="footer-meta">
+      <span>2026 Angelo Belforti</span>
+      <span class="footer-sep"></span>
+      <a href="https://www.linkedin.com/in/angelo-belforti-6a31891a8/" target="_blank" rel="noreferrer noopener">LinkedIn</a>
+      <span class="footer-sep"></span>
+      <a href="mailto:angelobelfo@gmail.com">Email</a>
+    </div>
+  </div>
+  <div class="footer-fine">
+    Costruito senza scrivere una riga di codice a mano. Con Claude Code e tanta pazienza.
+  </div>
+</footer>
+
+  <!-- Vercel Web Analytics -->
+  <script defer src="https://va.vercel-scripts.com/v1/script.js"></script>
+</body>
+</html>
